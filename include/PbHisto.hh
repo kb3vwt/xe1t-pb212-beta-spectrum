@@ -23,6 +23,7 @@ class PhHisto
 		void set1DHisto(); // Reparameterizes the histogram
 		void fillHisto(G4double, G4double); // Fills histogram with data
 		void fillTuple(G4int, G4double); // Fills tuple with data
+		void addRowToTuple(); //Adds a row to the tuple
 		void setFileName(const G4String& nam); // Sets file name
 		const G4String& getFileName() const;  
 		const G4String& FileType() const;

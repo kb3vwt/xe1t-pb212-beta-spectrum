@@ -104,6 +104,16 @@ void PbHisto::fillTuple(G4int col, G4double x)
 	G4cout << "**ROOT Tuple Filled \n";
 }
 
+void PbHisto::addRowToTuple()
+{
+	float ar[4];
+	for (G4int i=0; i<ROOTCol;i++)
+		ar[i] = ROOTArray[i];
+	
+	if(ROOTnTup)
+		ROOTnTup->Fill(ar);
+}
+
 void PbHisto::setFileName(const G4String& nam)
 {
 	histoName = nam;
