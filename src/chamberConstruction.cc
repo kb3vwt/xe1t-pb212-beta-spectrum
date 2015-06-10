@@ -30,48 +30,67 @@ G4PhysicalVolume* chamberConstruction::Construct()
   G4double TEMPERATURE = 160*Kelvin; //Check this!
 
   ///=============================Materials=============================
-  //==Configurables==
+  //**************==Configurables==**************
   //Strings to search for in the NIST DB
   G4String worldMatNISTName   = "G4_WATER"; //World Material
-  G4String fillMatNISTName   = "G4_lXe"; //Filler Material NIST Name - Major Component
-  //G4String fillMat2NISTName   = ""; //Filler Material NIST Name - Minor (mixed) Component
-  G4String chamberMatNISTName = "G4_STAINLESS-STEEL"; //Stainless Steel NIST Name
+  G4String fill_PrimaryNISTNAME   = "G4_lXe"; //Filler Material NIST Name - Major Component
+  //G4String fill_SecondaryNAME   = "Pb-212"; //Filler Material NIST Name - Major Component
+  G4String chamberMatNISTName = "G4_STAINLESS-STEEL"; //Stainless Steel NIST Name - unsure of 
   
   //Filler Reported Name:
   G4String fillMaterialName = "Liquid Xenon";
   
   //Percent of Initial Filler that is lXe and Pb-212:
-  //G4double lXePercent   = 100.*perCent;
-  //G4double Pb212Percent = 100.*perCent - lXePercent;
-  //Consider decay process - this should not remain constant over time!
-  
-  //==End Configurables==
-
+  G4double lXePercent   = 100.*perCent;
+  G4double Pb212Percent = 100.*perCent - lXePercent;
+  //Decays: This is handled by the G4Decay class. These serve as initial values.
   //Warning: The filler should have Pb212 inside it! Unknown amount needed.
+  //**************==End Configurables==**************
 
+  
 
 
   //Obtain the NIST material manager, look for materials named above, assign to material:
   G4NistManager* nist    = G4NistManager::Instance(); //starts instance of NIST Material DB
   G4Material* worldMat   = nist->FindOrBuildMaterial(worldMatNistName); //World Material (nominally water)
   G4Material* chamberMat = nist->FindOrBuildMaterial(chamberMatNISTName); //Chamber Material (nominally stainless steel 316 series)
-  G4Material* fillMat    = nist->FindOrBuildMaterial(fillMatNistName); //Filler Material (nominally lXe)
+  //Configure FILLER material:
+  /*
+		Note: Decay is added by G4Decay, across all materials. 
+			ToDo: 
+				+Find what Pb-212 is listed under.
+				+Make a "Mixture" with initial filler amounts - about 3-5Bq of Pb-212 within the 3300kg tank should be 'enough'.
+				+Save as filler material
+		
+  */
+  //Lead 212 Definition:
+  G4Element* elPb  = new G4Element(name="Lead",symbol="Pb", ncomponents=1);
+  G4Isotope* PB212 = new G4Isotope(name="Pb212",iz=82,n=212,a=212.997*g/mole);//a value from http://en.wikipedia.org/wiki/Isotopes_of_lead
+  elPb->AddIsotope(PB212,abundance=100*perCent); // In this case we have "pure" Lead-212.
+  
+  
+  //Define Filler Liquid:
+  G4Material* FillerLiquidMat    = nist->FindOrBuildMaterial(fill_PrimaryNISTNAME); //Filler Material (nominally lXe)
+
+  //Define Filler Mix (Pb212 and lXe, nominally)
+  G4Material* FillerMIX = new G4Material(name="lXe + Pb-212 Mixture",2.96*g/cm3,ncomponents=2);
+  FillerMIX->AddMaterial(FillerLiquidMat, fractionmass=lXePercent);
+  FillerMIX->AddElement(elPb, fractionmass=Pb212Percent);
+  
   
   ///========================End Materials=============================
   ///=============================Geometry==============================
-  //==Configurables==
+  //**************==Configurables==**************
   //World Volume (ext = extent)
   //G4double worldX_ext = 0*cm,
   //        worldY_ext = 0*cm,
   //        worldZ_ext = 0*cm;
 
   //Cryostat Volume
-  G4double CS_OD        = 0*cm;  //Outer Diameter of Chamber
-  G4double CS_Height    = 0*cm;  //Height of the chamber (inner cap to inner cap)
-  G4double CS_Thickness = 0*cm;  //Thickness of the sheet metal
-  //==End Configurables==
-
-
+  G4double CS_OD        = 110.0*cm;  //Outer Diameter of Chamber
+  G4double CS_Height    = 120.0*cm;  //Height of the chamber (inner cap to inner cap)
+  G4double CS_Thickness = 1.25*cm;  //Thickness of the sheet metal
+  //********==End Configurables==**************
 
 
   //World Extents
@@ -101,12 +120,9 @@ G4PhysicalVolume* chamberConstruction::Construct()
 
   //The Fill (lXe) solid, Logical Volume, and Physical Volume:
   G4Tubs* sfillVolume            = new G4Tubs(fillMaterialName, 0, CS_OD - CS_Thickness, 0*Degree, 360*Degree);
-  G4LogicalVolume* lfillVolume   = new G4LogicalVolume(sfillVolume, fillMat, fillMaterialName);
+  G4LogicalVolume* lfillVolume   = new G4LogicalVolume(sfillVolume, FillerMIX, fillMaterialName);
   G4VPhysicalVolume* pfillVolume = new G4PVPlacement(0, G4ThreeVector(), fillMaterialName, lworldVol, false, 0, checkOverlaps);
   ///========================End Geometry==========================
-
-
-
 
   return physWorld;
 }
