@@ -25,6 +25,9 @@ int main()
   UIMan->ApplyCommand("/run/verbos 1");
   UIMan->ApplyCommand("/event/verbose 1");
   UIMan->ApplyCommand("/tracking/verbose 1");
+  
+  //Set Default GPS source info
+  UIMan->ApplyCommand("/");
 
   //Start Run with 'nEvents' events:
   int nEvents = 1;

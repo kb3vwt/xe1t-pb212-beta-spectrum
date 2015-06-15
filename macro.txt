@@ -1,0 +1,14 @@
+#Defining the GPS for Pb-212
+#Geometry
+/gps/pos/type Volume
+/gps/pos/shape Cylinder
+/gps/pos/radius 108.75 cm
+/gps/pos/halfz 60.0 cm
+/gps/pos/centre 0.0 0.0 0.0
+/gps/pos/confine pfillVolume
+/gps/ang/iso
+
+#Particle
+/gps/particle 
+/gps/ene/type Mono
+/gps/ene/mono 0.0 eV
