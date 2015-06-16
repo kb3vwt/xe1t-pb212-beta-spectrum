@@ -2,10 +2,12 @@
 #include "G4UImanager.hh"
 
 //Project Files:
-#include "chamberConstruction.hh"   //Loads the X1t Geometry
-#include "pbPhysicsList.hh"   		//Loads the Physics that we need
-#include "pbSpecActionInit.hh"      //Loads our "actions"
-#include "pbSpecHisto.hh"           //Loads histogram generator
+#include "chamberConstruction.hh"   		//Loads the X1t Geometry
+#include "pbPhysicsList.hh"   				//Loads the Physics that we need
+#include "pbPrimaryGeneratorAction.hh"      //Loads our primary actions
+#include "pbEventAction.hh"					//Event Actions
+#include "pbHisto.hh"          			    //Loads histogram generator
+//#include "pbAnalysis.hh"
 
 
 int main()
