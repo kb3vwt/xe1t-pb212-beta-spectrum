@@ -7,6 +7,11 @@
 
 //Geant4 Headers
 #include "G4ProcessManager.hh"
+#include "G4DecayPhysics.hh"
+#include "G4RadioactiveDecay.hh"
+#include "G4UnitsTable.hh"
+#include "G4IonPhysics.hh"
+
 
 //Particle Constructors
 #include "G4BosonConstructor.hh"
