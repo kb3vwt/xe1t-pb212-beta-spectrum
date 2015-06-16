@@ -10,7 +10,7 @@
 #include "G4HCofThisEvent.hh"
 #include "G4UImanager.hh"
 #include "G4UnitsTable.hh"
-#include "pbAnalysisManager.hh"
+//#include "pbAnalysisManager.hh"
 
 extern G4bool drawEvent;
 
