@@ -7,7 +7,7 @@ File started by J.Sheldon, June 04, 2015
 
 #include "chamberConstruction.hh"
 #include "G4RunManager.hh"
-#incldue "G4NistManager.hh"
+#include "G4NistManager.hh"
 #include "G4Box.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
