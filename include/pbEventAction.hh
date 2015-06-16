@@ -5,7 +5,7 @@
 #ifndef pbEventAction_h
 #define pbEventAction_h 1
 
-#include "G4UserEvenAction.hh"
+#include "G4UserEventAction.hh"
 #include "globals.hh"
 
 class pbEventActionMessenger;
