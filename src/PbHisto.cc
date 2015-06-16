@@ -19,8 +19,8 @@
 #include "G4Tokenizer.hh"
 
 //Include Project Dependencies:
-#include "PbHisto.hh"
-#include "PbHistoMessenger.hh"
+#include "pbHisto.hh"
+#include "pbHistoMessenger.hh"
 
 PbHisto::PbHisto()
 {

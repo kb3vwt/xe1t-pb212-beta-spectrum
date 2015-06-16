@@ -9,14 +9,14 @@ class TFile;
 class TH1D;
 class TNtuple;
 
-class PbHistoMessenger;
+class pbHistoMessenger;
 
-class PhHisto
+class pbHisto
 {
 	public:
 	
-		PbHisto();
-		rmPbHisto();
+		pbHisto();
+		rmpbHisto();
 		
 		void book(); // Creates empty histogram with set parameters
 		void save(); // Saves to file
