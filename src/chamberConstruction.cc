@@ -22,12 +22,16 @@ File started by J.Sheldon, June 04, 2015
 //===========================================================================================
 
 
-G4PhysicalVolume* chamberConstruction::Construct()
+G4VPhysicalVolume* chamberConstruction::Construct()
 {
+  const double Pi = 3.14159265359;
+
   //Check for Overlaps:
   G4bool checkOverlaps = true;
+
+
   //System Configurable(s):
-  G4double TEMPERATURE = 160*Kelvin; //Check this!
+  //G4double TEMPERATURE = 160*Kelvin; //Check this!
 
   ///=============================Materials=============================
   //**************==Configurables==**************
@@ -38,7 +42,7 @@ G4PhysicalVolume* chamberConstruction::Construct()
   G4String chamberMatNISTName = "G4_STAINLESS-STEEL"; //Stainless Steel NIST Name - unsure of 
   
   //Filler Reported Name:
-  G4String fillMaterialName = "Liquid Xenon";
+  //G4String fillMaterialName = "Liquid Xenon";
   
   //Percent of Initial Filler that is lXe and Pb-212:
   G4double lXePercent   = 100.*perCent;
@@ -52,7 +56,7 @@ G4PhysicalVolume* chamberConstruction::Construct()
 
   //Obtain the NIST material manager, look for materials named above, assign to material:
   G4NistManager* nist    = G4NistManager::Instance(); //starts instance of NIST Material DB
-  G4Material* worldMat   = nist->FindOrBuildMaterial(worldMatNistName); //World Material (nominally water)
+  G4Material* worldMat   = nist->FindOrBuildMaterial(worldMatNISTName); //World Material (nominally water)
   G4Material* chamberMat = nist->FindOrBuildMaterial(chamberMatNISTName); //Chamber Material (nominally stainless steel 316 series)
   //Configure FILLER material:
   /*
@@ -64,18 +68,18 @@ G4PhysicalVolume* chamberConstruction::Construct()
 		
   */
   //Lead 212 Definition:
-  G4Element* elPb  = new G4Element(name="Lead",symbol="Pb", ncomponents=1);
-  G4Isotope* PB212 = new G4Isotope(name="Pb212",iz=82,n=212,a=212.997*g/mole);//a value from http://en.wikipedia.org/wiki/Isotopes_of_lead
-  elPb->AddIsotope(PB212,abundance=100*perCent); // In this case we have "pure" Lead-212.
+  G4Element* elPb  = new G4Element("Lead","Pb",1);
+  G4Isotope* PB212 = new G4Isotope("Pb212",82,212,212.997*g/mole);//a value from http://en.wikipedia.org/wiki/Isotopes_of_lead
+  elPb->AddIsotope(PB212,100*perCent); // In this case we have "pure" Lead-212.
   
   
   //Define Filler Liquid:
   G4Material* FillerLiquidMat    = nist->FindOrBuildMaterial(fill_PrimaryNISTNAME); //Filler Material (nominally lXe)
 
   //Define Filler Mix (Pb212 and lXe, nominally)
-  G4Material* FillerMIX = new G4Material(name="lXe + Pb-212 Mixture",2.96*g/cm3,ncomponents=2);
-  FillerMIX->AddMaterial(FillerLiquidMat, fractionmass=lXePercent);
-  FillerMIX->AddElement(elPb, fractionmass=Pb212Percent);
+  G4Material* FillerMIX = new G4Material("lXe + Pb-212 Mixture",2.96*g/cm3,2);
+  FillerMIX->AddMaterial(FillerLiquidMat,lXePercent);
+  FillerMIX->AddElement(elPb,Pb212Percent);
   
   
   ///========================End Materials=============================
@@ -99,30 +103,30 @@ G4PhysicalVolume* chamberConstruction::Construct()
   G4double worldZ_ext = 1.5*(2.0*CS_Thickness + CS_Height); //150% outer cap-cap tube heights
 
   //Create World Solid, Logical Volume, and Physical Volume:
-  G4Box* sworldVol             = new G4Box("World", WorldX_ext, WorldY_ext, WorldZ_ext);
-  G4LogicalVolume* lworldVol   = new G4LogicalVolume(sworldVolume, worldMat, "World");
+  G4Box* sworldVol             = new G4Box("World", worldX_ext, worldY_ext, worldZ_ext);
+  G4LogicalVolume* lworldVol   = new G4LogicalVolume(sworldVol, worldMat, "World");
   G4VPhysicalVolume* pworldVol = new G4PVPlacement(0, G4ThreeVector(), "World", 0, false, 0, checkOverlaps);
   
   //Create Chamber Solid, Logical Volume, and Physical Volume:
   //First, create outside walls
-  G4Tubs* schamberWall            = new G4Tubs("Chamber Wall", CS_OD - CS_Thickness, CS_OD, CS_Height / 2.0, 0*Degree, 360*Degree);
+  G4Tubs* schamberWall            = new G4Tubs("Chamber Wall", CS_OD - CS_Thickness, CS_OD, CS_Height / 2.0, 0.*Pi, 2.*Pi);
   G4LogicalVolume* lchamberWall   = new G4LogicalVolume(schamberWall, chamberMat, "Chamber Wall");
   G4VPhysicalVolume* pchamberWall = new G4PVPlacement(0, G4ThreeVector(), "Chamber Wall", lworldVol, false, 0, checkOverlaps);
   //Next, cap off ends (Use boolean? Or not? Also: Could use copies, but object is simple enough not to)
   //top 
-  G4Tubs* schamberCapTop            = new G4Tubs("Chamber Lid", 0, CS_OD, CS_Thickness / 2.0, 0*Degree, 360*Degree);
+  G4Tubs* schamberCapTop            = new G4Tubs("Chamber Lid", 0, CS_OD, CS_Thickness / 2.0, 0.*Pi, 2.*Pi);
   G4LogicalVolume* lchamberCapTop   = new G4LogicalVolume(schamberCapTop, chamberMat, "Chamber Lid");
   G4VPhysicalVolume* pchamberCapTop = new G4PVPlacement(0, G4ThreeVector(0, 0, (CS_Height + CS_Thickness) / 2.0), "Chamber Lid", lworldVol, false, 0, checkOverlaps);
   //bottom
-  G4Tubs* schamberCapBottom            = new G4Tubs("Chamber Bottom", 0, CS_OD, CS_Thickness / 2.0, 0*Degree, 360*Degree);
+  G4Tubs* schamberCapBottom            = new G4Tubs("Chamber Bottom", 0, CS_OD, CS_Thickness / 2.0, 0.*Pi, 2.*Pi);
   G4LogicalVolume* lchamberCapBottom   = new G4LogicalVolume(schamberCapBottom, chamberMat, "Chamber Bottom");
   G4VPhysicalVolume* pchamberCapBottom = new G4PVPlacement(0, G4ThreeVector(0, 0, -(CS_Height + CS_Thickness) / 2.0), "Chamber Bottom", lworldVol, false, 0, checkOverlaps);
 
   //The Fill (lXe) solid, Logical Volume, and Physical Volume:
-  G4Tubs* sfillVolume            = new G4Tubs(fillMaterialName, 0, CS_OD - CS_Thickness, 0*Degree, 360*Degree);
+  G4Tubs* sfillVolume            = new G4Tubs("Liquid Xenon Filler", 0, CS_OD - CS_Thickness, CS_Thickness, 0., 2.*Pi);
   G4LogicalVolume* lfillVolume   = new G4LogicalVolume(sfillVolume, FillerMIX, fillMaterialName);
   G4VPhysicalVolume* pfillVolume = new G4PVPlacement(0, G4ThreeVector(), fillMaterialName, lworldVol, false, 0, checkOverlaps);
   ///========================End Geometry==========================
 
-  return physWorld;
+  return pworldVol;
 }

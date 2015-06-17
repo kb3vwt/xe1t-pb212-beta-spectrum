@@ -1,0 +1,43 @@
+Making dependency for file pb212spectrum.cc ...
+In file included from pb212spectrum.cc:8:0:
+include/pbEventAction.hh:8:31: fatal error: G4UserEvenAction.hh: No such file or directory
+compilation terminated.
+Making dependency for file src/pbPrimaryGeneratorAction.cc ...
+src/pbPrimaryGeneratorAction.cc:9:29: fatal error: G4NuclideTable.hh: No such file or directory
+compilation terminated.
+Making dependency for file src/PbHisto.cc ...
+src/PbHisto.cc:6:19: fatal error: TROOT.h: No such file or directory
+compilation terminated.
+Making dependency for file src/pbEventAction.cc ...
+In file included from src/pbEventAction.cc:7:0:
+include/pbEventAction.hh:8:31: fatal error: G4UserEvenAction.hh: No such file or directory
+compilation terminated.
+Compiling chamberConstruction.cc ...
+In file included from /project/darkmatters/geant4.9.4/source/processes/management/include/G4ProcessManager.hh:77:0,
+                 from /project/darkmatters/geant4.9.4/source/tracking/include/G4SteppingManager.hh:68,
+                 from /project/darkmatters/geant4.9.4/source/tracking/include/G4TrackingManager.hh:57,
+                 from /project/darkmatters/geant4.9.4/source/event/include/G4EventManager.hh:46,
+                 from /project/darkmatters/geant4.9.4/source/run/include/G4RunManagerKernel.hh:67,
+                 from /project/darkmatters/geant4.9.4/source/run/include/G4RunManager.hh:90,
+                 from src/chamberConstruction.cc:9:
+/project/darkmatters/geant4.9.4/source/processes/management/include/G4VProcess.hh: In member function ‘virtual G4bool G4VProcess::StorePhysicsTable(const G4ParticleDefinition*, const G4String&, G4bool)’:
+/project/darkmatters/geant4.9.4/source/processes/management/include/G4VProcess.hh:232:22: warning: parameter ‘ascii’ set but not used [-Wunused-but-set-parameter]
+/project/darkmatters/geant4.9.4/source/processes/management/include/G4VProcess.hh: In member function ‘virtual G4bool G4VProcess::RetrievePhysicsTable(const G4ParticleDefinition*, const G4String&, G4bool)’:
+/project/darkmatters/geant4.9.4/source/processes/management/include/G4VProcess.hh:239:22: warning: parameter ‘ascii’ set but not used [-Wunused-but-set-parameter]
+src/chamberConstruction.cc: At global scope:
+src/chamberConstruction.cc:25:1: error: ‘G4PhysicalVolume’ does not name a type
+In file included from /project/darkmatters/geant4.9.4/source/global/management/include/G4PhysicalConstants.hh:27:0,
+                 from /project/darkmatters/geant4.9.4/source/global/management/include/globals.hh:71,
+                 from /project/darkmatters/geant4.9.4/source/run/include/G4RunManagerKernel.hh:66,
+                 from /project/darkmatters/geant4.9.4/source/run/include/G4RunManager.hh:90,
+                 from src/chamberConstruction.cc:9:
+/project/darkmatters/CLHEP/include/CLHEP/Units/PhysicalConstants.h:80:21: warning: ‘CLHEP::electron_charge’ defined but not used [-Wunused-variable]
+In file included from /project/darkmatters/geant4.9.4/source/global/HEPRandom/include/Randomize.hh:33:0,
+                 from /project/darkmatters/geant4.9.4/source/tracking/include/G4SteppingManager.hh:63,
+                 from /project/darkmatters/geant4.9.4/source/tracking/include/G4TrackingManager.hh:57,
+                 from /project/darkmatters/geant4.9.4/source/event/include/G4EventManager.hh:46,
+                 from /project/darkmatters/geant4.9.4/source/run/include/G4RunManagerKernel.hh:67,
+                 from /project/darkmatters/geant4.9.4/source/run/include/G4RunManager.hh:90,
+                 from src/chamberConstruction.cc:9:
+/project/darkmatters/CLHEP/include/CLHEP/Random/Randomize.h:67:12: warning: ‘CLHEP::HepRandomGenActive’ defined but not used [-Wunused-variable]
+make: *** [/home/sheldoj/geant4/tmp/Linux-g++/pb212spectrum/chamberConstruction.o] Error 1

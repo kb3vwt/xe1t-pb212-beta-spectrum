@@ -19,7 +19,7 @@ pbEventAction::pbEventAction() : drawFlag("all")
   eventMessenger = new pbEventActionMessenger(this);
 }
 
-pbEventAction::rmpbEventAction()
+pbEventAction::~pbEventAction()
 {
   delete eventMessenger;
 }

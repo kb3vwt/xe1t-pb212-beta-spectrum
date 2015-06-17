@@ -14,7 +14,7 @@ class pbEventAction : public G4UserEventAction
 {
 	public:
 		pbEventAction();
-		rmpbEventAction();
+		~pbEventAction();
 		
 		void BeginofEventAction(const G4Event* anEvent);
 		void EndofEventAction(const G4Event* anEvent);
