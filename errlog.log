@@ -1,4 +1,0 @@
-src/pbEventAction.cc:19:51: error: invalid use of incomplete type ‘class pbEventActionMessenger’
-include/pbEventAction.hh:11:7: error: forward declaration of ‘class pbEventActionMessenger’
-src/pbEventAction.cc:27:55: error: no ‘void pbEventAction::BeginOfEventAction(const G4Event*)’ member function declared in class ‘pbEventAction’
-src/pbEventAction.cc:32:52: error: no ‘void pbEventAction::EndOfEventAction(const G4Event*)’ member function declared in class ‘pbEventAction’
