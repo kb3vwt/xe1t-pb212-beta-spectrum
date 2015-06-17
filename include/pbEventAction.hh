@@ -16,8 +16,8 @@ class pbEventAction : public G4UserEventAction
 		pbEventAction();
 		~pbEventAction();
 		
-		void BeginofEventAction(const G4Event* anEvent);
-		void EndofEventAction(const G4Event* anEvent);
+		void BeginOfEventAction(const G4Event* anEvent);
+		void EndOfEventAction(const G4Event* anEvent);
 		void SetDrawFlag(G4String val) {drawFlag = val;};
 		
 	private:
