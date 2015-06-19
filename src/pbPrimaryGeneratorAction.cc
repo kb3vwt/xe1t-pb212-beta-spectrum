@@ -14,7 +14,7 @@ pbPrimaryGeneratorAction::pbPrimaryGeneratorAction()
 {
 	//Configurables:
 	int particleZ = 82; // Lead
-	int particleA = 212 // Lead - 212
+	int particleA = 212; // Lead - 212
 	int particleCharge = 0; // Lead ion charge in units of e
 	double particleEnergy = 0.; // Energy, units of keV
 	int particleCount = 275266; // Number of particles, units of particles
@@ -63,7 +63,7 @@ pbPrimaryGeneratorAction::pbPrimaryGeneratorAction()
 	*/
 }
 
-pbPrimaryGeneratorAction::rmpbPrimaryGeneratorAction()
+pbPrimaryGeneratorAction::~pbPrimaryGeneratorAction()
 {
 	delete pb212ParticleSource;
 }

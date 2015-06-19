@@ -14,13 +14,14 @@ int main()
 {
   //Construct our Run Manager
   G4RunManager* runMan = new G4RunManager;
+  
   //Set Required Initialization Classes
   runMan->SetUserInitialization(new chamberConstruction);
-  runMan->SetUserInitialization(new pbSpecPhysicsList);
-  runMan->SetUserInitialization(new pbSpecActionInit);
+  runMan->SetUserInitialization(new pbPhysicsList);
+  runMan->SetUserInitialization(new pbPrimaryGeneratorAction);
   
   //Initialize the Run Manager / G4 Kernel:
-  runManager->Initialize();
+  runMan->Initialize();
 
   //Get UI Manager's pointer, set verbosity levels:
   G4UImanager* UIMan = G4UImanager::GetUIpointer();

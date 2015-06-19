@@ -14,8 +14,9 @@ class pbPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
 	public:
 		pbPrimaryGeneratorAction();
-		rmpbPrimaryGeneratorAction();
-		void GeneratePrimaries(G4Event* anEvent);
+		~pbPrimaryGeneratorAction();
+		
+                void GeneratePrimaries(G4Event* anEvent);
 		
 	private:
 		G4GeneralParticleSource* pb212ParticleSource;

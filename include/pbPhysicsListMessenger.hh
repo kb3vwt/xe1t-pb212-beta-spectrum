@@ -26,62 +26,41 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#ifndef pbPhysicsList_h
-#define pbPhysicsList_h 1
+#ifndef pbPhysicsListMessenger_h
+#define pbPhysicsListMessenger_h 1
 
-#include "G4VModularPhysicsList.hh"
 #include "globals.hh"
-#include <vector>
+#include "G4UImessenger.hh"
 
-class G4VPhysicsConstructor;
-class pbPhysicsListMessenger;
-class G4ProductionCuts;
+class pbPhysicsList;
+class G4UIdirectory;
+class G4UIcmdWithADoubleAndUnit;
+class G4UIcmdWithAString;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class pbPhysicsList: public G4VModularPhysicsList
+class pbPhysicsListMessenger: public G4UImessenger
 {
 public:
-  pbPhysicsList();
-  virtual ~pbPhysicsList();
-
-  void ConstructParticle();
-
-  void SetCuts();
-  void SetCutForGamma(G4double);
-  void SetCutForElectron(G4double);
-  void SetCutForPositron(G4double);
-
-  void SelectPhysicsList(const G4String& name);
-  void ConstructProcess();
-
-  void SetTargetCut(G4double val);
-  void SetDetectorCut(G4double val);
-
+  
+  pbPhysicsListMessenger(pbPhysicsList* );
+  ~pbPhysicsListMessenger();
+    
+  void SetNewValue(G4UIcommand*, G4String);
+    
 private:
+  
+  pbPhysicsList* pPhysicsList;
 
-  void AddExtraBuilders(G4bool flagHP);
-
-  // hide assignment operator
-  pbPhysicsList & operator=(const pbPhysicsList &right);
-  pbPhysicsList(const pbPhysicsList&);
-
-  G4double cutForGamma;
-  G4double cutForElectron;
-  G4double cutForPositron;
-
-  G4VPhysicsConstructor*  emPhysicsList;
-  G4VPhysicsConstructor*  raddecayList;
-  G4VPhysicsConstructor*  particleList;
-  G4VPhysicsConstructor*  hadPhysicsList;
-
-  std::vector<G4VPhysicsConstructor*>  hadronPhys;
-  G4int nhadcomp;  
-
-  pbPhysicsListMessenger* pMessenger;
-  G4ProductionCuts* DetectorCuts;
-  G4ProductionCuts* TargetCuts;
-
+  G4UIdirectory*             physDir;  
+  G4UIcmdWithADoubleAndUnit* gammaCutCmd;
+  G4UIcmdWithADoubleAndUnit* electCutCmd;
+  G4UIcmdWithADoubleAndUnit* protoCutCmd;    
+  G4UIcmdWithADoubleAndUnit* allCutCmd;    
+  G4UIcmdWithADoubleAndUnit* mCutCmd;
+  G4UIcmdWithADoubleAndUnit* eCutCmd;
+  G4UIcmdWithAString*        pListCmd;
+    
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

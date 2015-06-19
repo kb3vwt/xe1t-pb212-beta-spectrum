@@ -26,65 +26,38 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#ifndef pbPhysicsList_h
-#define pbPhysicsList_h 1
+#ifndef pbPhysListEmLowEnergy_h
+#define pbPhysListEmLowEnergy_h 1
 
-#include "G4VModularPhysicsList.hh"
+#include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
-#include <vector>
-
-class G4VPhysicsConstructor;
-class pbPhysicsListMessenger;
-class G4ProductionCuts;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class pbPhysicsList: public G4VModularPhysicsList
+class pbPhysListEmLowEnergy : public G4VPhysicsConstructor
 {
-public:
-  pbPhysicsList();
-  virtual ~pbPhysicsList();
+public: 
+  pbPhysListEmLowEnergy(const G4String& name = "lowenergy");
+  virtual ~pbPhysListEmLowEnergy();
 
-  void ConstructParticle();
-
-  void SetCuts();
-  void SetCutForGamma(G4double);
-  void SetCutForElectron(G4double);
-  void SetCutForPositron(G4double);
-
-  void SelectPhysicsList(const G4String& name);
-  void ConstructProcess();
-
-  void SetTargetCut(G4double val);
-  void SetDetectorCut(G4double val);
-
-private:
-
-  void AddExtraBuilders(G4bool flagHP);
-
-  // hide assignment operator
-  pbPhysicsList & operator=(const pbPhysicsList &right);
-  pbPhysicsList(const pbPhysicsList&);
-
-  G4double cutForGamma;
-  G4double cutForElectron;
-  G4double cutForPositron;
-
-  G4VPhysicsConstructor*  emPhysicsList;
-  G4VPhysicsConstructor*  raddecayList;
-  G4VPhysicsConstructor*  particleList;
-  G4VPhysicsConstructor*  hadPhysicsList;
-
-  std::vector<G4VPhysicsConstructor*>  hadronPhys;
-  G4int nhadcomp;  
-
-  pbPhysicsListMessenger* pMessenger;
-  G4ProductionCuts* DetectorCuts;
-  G4ProductionCuts* TargetCuts;
-
+public: 
+  // This method is dummy for physics
+  virtual void ConstructParticle() {};
+ 
+  // This method will be invoked in the Construct() method.
+  // each physics process will be instantiated and
+  // registered to the process manager of each particle type 
+  virtual void ConstructProcess();
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
+
+
+
+
+
+
+
 

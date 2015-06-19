@@ -26,65 +26,87 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#ifndef pbPhysicsList_h
-#define pbPhysicsList_h 1
+#include "pbPhysListParticles.hh"
 
-#include "G4VModularPhysicsList.hh"
-#include "globals.hh"
-#include <vector>
+// Bosons
+#include "G4ChargedGeantino.hh"
+#include "G4Geantino.hh"
+#include "G4Gamma.hh"
+#include "G4OpticalPhoton.hh"
 
-class G4VPhysicsConstructor;
-class pbPhysicsListMessenger;
-class G4ProductionCuts;
+// leptons
+#include "G4MuonPlus.hh"
+#include "G4MuonMinus.hh"
+#include "G4NeutrinoMu.hh"
+#include "G4AntiNeutrinoMu.hh"
+
+#include "G4Electron.hh"
+#include "G4Positron.hh"
+#include "G4NeutrinoE.hh"
+#include "G4AntiNeutrinoE.hh"
+
+// Hadrons
+#include "G4MesonConstructor.hh"
+#include "G4BaryonConstructor.hh"
+#include "G4IonConstructor.hh"
+
+//ShortLived
+#include "G4ShortLivedConstructor.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class pbPhysicsList: public G4VModularPhysicsList
+pbPhysListParticles::pbPhysListParticles(const G4String& name)
+   :  G4VPhysicsConstructor(name)
+{}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+pbPhysListParticles::~pbPhysListParticles()
+{}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void pbPhysListParticles::ConstructParticle()
 {
-public:
-  pbPhysicsList();
-  virtual ~pbPhysicsList();
 
-  void ConstructParticle();
+// pseudo-particles
+  G4Geantino::GeantinoDefinition();
+  G4ChargedGeantino::ChargedGeantinoDefinition();
+  
+// gamma
+  G4Gamma::GammaDefinition();
+  
+// optical photon
+  G4OpticalPhoton::OpticalPhotonDefinition();
 
-  void SetCuts();
-  void SetCutForGamma(G4double);
-  void SetCutForElectron(G4double);
-  void SetCutForPositron(G4double);
+// leptons
+  G4Electron::ElectronDefinition();
+  G4Positron::PositronDefinition();
+  G4MuonPlus::MuonPlusDefinition();
+  G4MuonMinus::MuonMinusDefinition();
 
-  void SelectPhysicsList(const G4String& name);
-  void ConstructProcess();
+  G4NeutrinoE::NeutrinoEDefinition();
+  G4AntiNeutrinoE::AntiNeutrinoEDefinition();
+  G4NeutrinoMu::NeutrinoMuDefinition();
+  G4AntiNeutrinoMu::AntiNeutrinoMuDefinition();  
 
-  void SetTargetCut(G4double val);
-  void SetDetectorCut(G4double val);
+// mesons
+  G4MesonConstructor mConstructor;
+  mConstructor.ConstructParticle();
 
-private:
+// barions
+  G4BaryonConstructor bConstructor;
+  bConstructor.ConstructParticle();
 
-  void AddExtraBuilders(G4bool flagHP);
+// ions
+  G4IonConstructor iConstructor;
+  iConstructor.ConstructParticle();
+  
+//  Construct  resonaces and quarks
+  G4ShortLivedConstructor pShortLivedConstructor;
+  pShortLivedConstructor.ConstructParticle();
 
-  // hide assignment operator
-  pbPhysicsList & operator=(const pbPhysicsList &right);
-  pbPhysicsList(const pbPhysicsList&);
-
-  G4double cutForGamma;
-  G4double cutForElectron;
-  G4double cutForPositron;
-
-  G4VPhysicsConstructor*  emPhysicsList;
-  G4VPhysicsConstructor*  raddecayList;
-  G4VPhysicsConstructor*  particleList;
-  G4VPhysicsConstructor*  hadPhysicsList;
-
-  std::vector<G4VPhysicsConstructor*>  hadronPhys;
-  G4int nhadcomp;  
-
-  pbPhysicsListMessenger* pMessenger;
-  G4ProductionCuts* DetectorCuts;
-  G4ProductionCuts* TargetCuts;
-
-};
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-#endif
 

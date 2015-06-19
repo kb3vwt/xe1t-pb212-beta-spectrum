@@ -23,68 +23,53 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+#ifndef pbPhysListHadron_h
+#define pbPhysListHadron_h 1
 
-#ifndef pbPhysicsList_h
-#define pbPhysicsList_h 1
-
-#include "G4VModularPhysicsList.hh"
+#include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
-#include <vector>
 
-class G4VPhysicsConstructor;
-class pbPhysicsListMessenger;
-class G4ProductionCuts;
+#include "G4HadronElasticProcess.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+#include "G4ProtonInelasticProcess.hh"
+#include "G4NeutronInelasticProcess.hh"
+#include "G4DeuteronInelasticProcess.hh"
+#include "G4TritonInelasticProcess.hh"
+#include "G4AlphaInelasticProcess.hh"
+#include "G4IonInelasticProcess.hh"
+#include "G4HadronFissionProcess.hh"
+#include "G4HadronCaptureProcess.hh"
 
-class pbPhysicsList: public G4VModularPhysicsList
+
+class pbPhysListHadron : public G4VPhysicsConstructor 
 {
-public:
-  pbPhysicsList();
-  virtual ~pbPhysicsList();
+  public:
+    pbPhysListHadron(const G4String& name = "hadron");
+    virtual ~pbPhysListHadron();
 
-  void ConstructParticle();
+  public:
+  // Construct particle and physics
+    void ConstructParticle() {};
+  //
+    void ConstructProcess(); 
 
-  void SetCuts();
-  void SetCutForGamma(G4double);
-  void SetCutForElectron(G4double);
-  void SetCutForPositron(G4double);
+  private:
 
-  void SelectPhysicsList(const G4String& name);
-  void ConstructProcess();
-
-  void SetTargetCut(G4double val);
-  void SetDetectorCut(G4double val);
-
-private:
-
-  void AddExtraBuilders(G4bool flagHP);
-
-  // hide assignment operator
-  pbPhysicsList & operator=(const pbPhysicsList &right);
-  pbPhysicsList(const pbPhysicsList&);
-
-  G4double cutForGamma;
-  G4double cutForElectron;
-  G4double cutForPositron;
-
-  G4VPhysicsConstructor*  emPhysicsList;
-  G4VPhysicsConstructor*  raddecayList;
-  G4VPhysicsConstructor*  particleList;
-  G4VPhysicsConstructor*  hadPhysicsList;
-
-  std::vector<G4VPhysicsConstructor*>  hadronPhys;
-  G4int nhadcomp;  
-
-  pbPhysicsListMessenger* pMessenger;
-  G4ProductionCuts* DetectorCuts;
-  G4ProductionCuts* TargetCuts;
-
+  G4HadronElasticProcess  theElasticProcess;
+  G4ProtonInelasticProcess theProtonInelastic;
+  G4NeutronInelasticProcess  theNeutronInelastic;
+  G4HadronElasticProcess* theNeutronElasticProcess;
+  G4HadronFissionProcess* theFissionProcess;
+  G4HadronCaptureProcess* theCaptureProcess;
+  G4DeuteronInelasticProcess* theDeuteronInelasticProcess;
+  G4TritonInelasticProcess* theTritonInelasticProcess;
+  G4AlphaInelasticProcess* theAlphaInelasticProcess;
+  G4IonInelasticProcess* theIonInelasticProcess;
 };
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 #endif
+
+
 

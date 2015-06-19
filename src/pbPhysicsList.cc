@@ -1,195 +1,253 @@
-//pbPhysicsList.cc
-//File Started by J. Sheldon, 10 June 2015
-//Derived from geant4 example code
+//
+// ********************************************************************
+// * License and Disclaimer                                           *
+// *                                                                  *
+// * The  Geant4 software  is  copyright of the Copyright Holders  of *
+// * the Geant4 Collaboration.  It is provided  under  the terms  and *
+// * conditions of the Geant4 Software License,  included in the file *
+// * LICENSE and available at  http://cern.ch/geant4/license .  These *
+// * include a list of copyright holders.                             *
+// *                                                                  *
+// * Neither the authors of this software system, nor their employing *
+// * institutes,nor the agencies providing financial support for this *
+// * work  make  any representation or  warranty, express or implied, *
+// * regarding  this  software system or assume any liability for its *
+// * use.  Please see the license in the file  LICENSE  and URL above *
+// * for the full disclaimer and the limitation of liability.         *
+// *                                                                  *
+// * This  code  implementation is the result of  the  scientific and *
+// * technical work of the GEANT4 collaboration.                      *
+// * By using,  copying,  modifying or  distributing the software (or *
+// * any work based  on the software)  you  agree  to acknowledge its *
+// * use  in  resulting  scientific  publications,  and indicate your *
+// * acceptance of all terms of the Geant4 Software license.          *
+// ********************************************************************
+//
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-//Project Headers
 #include "pbPhysicsList.hh"
+#include "pbPhysicsListMessenger.hh"
 
-//Geant4 Headers
+#include "pbPhysListParticles.hh"
+#include "G4EmStandardPhysics.hh"
+#include "pbPhysListEmLowEnergy.hh"
+#include "pbPhysListHadron.hh"
+#include "G4RegionStore.hh"
+#include "G4Region.hh"
+#include "G4ProductionCuts.hh"
 #include "G4ProcessManager.hh"
-#include "G4DecayPhysics.hh"
-#include "G4RadioactiveDecay.hh"
+#include "G4ParticleTypes.hh"
+#include "G4ParticleTable.hh"
+
+#include "G4Gamma.hh"
+#include "G4Electron.hh"
+#include "G4Positron.hh"
+
 #include "G4UnitsTable.hh"
-#include "G4IonPhysics.hh"
+#include "G4LossTableManager.hh"
 
+#include "HadronPhysicsQGSP_BERT.hh"
+#include "HadronPhysicsQGSP_BIC.hh"
+#include "HadronPhysicsQGSP_BERT_HP.hh"
+#include "HadronPhysicsQGSP_BIC_HP.hh"
 
-//Particle Constructors
-#include "G4BosonConstructor.hh"
-#include "G4LeptonConstructor.hh"
-#include "G4MesonConstructor.hh"
-#include "G4BosonConstructor.hh"
-#include "G4BaryonConstructor.hh"
-#include "G4IonConstructor.hh"
+#include "G4EmExtraPhysics.hh"
+#include "G4HadronElasticPhysics.hh"
+#include "G4QStoppingPhysics.hh"
+#include "G4IonBinaryCascadePhysics.hh"
+#include "G4RadioactiveDecayPhysics.hh"
+#include "G4NeutronTrackingCut.hh"
+#include "G4DecayPhysics.hh"
 
-pbPhysicsList::PhysicsList(): G4VUserPhysicsList()
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+pbPhysicsList::pbPhysicsList() : G4VModularPhysicsList()
 {
-	defaultCutValue = 1.0*mm;
-	setVerboseLevel(1);
+  G4LossTableManager::Instance();
+  defaultCutValue = 1.*mm;
+  cutForGamma     = defaultCutValue;
+  cutForElectron  = defaultCutValue;
+  cutForPositron  = defaultCutValue;
+
+  DetectorCuts = 0;
+  TargetCuts   = 0;
+
+  pMessenger = new pbPhysicsListMessenger(this);
+
+  SetVerboseLevel(1);
+
+  //default physics
+  particleList = new G4DecayPhysics();
+
+  //default physics
+  raddecayList = new G4RadioactiveDecayPhysics();
+
+  // EM physics
+  emPhysicsList = new G4EmStandardPhysics();
+  
+  // Had physics 
+  hadPhysicsList = 0;
+  nhadcomp = 0;
+
 }
 
-pbPhysicsList::rmPhysicsList()
-{}
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-/////////////////////CONSTRUCTION OF PARTICLES/////////////////////////
-
-void pbPhysicsList::ConstructParticle()
+pbPhysicsList::~pbPhysicsList()
 {
-	/*
-	Make sure that these are necessary - each probably isn't.
-	Essentially we're dealing with e- (leptons), photons(bosons), and ions/atoms(baryons).
-	
-	Comment out as necessary.
-	*/
-	G4BosonConstructor  pBosonConstructor; //photons
-	pBosonConstructor.ConstructParticle();
-
-	G4LeptonConstructor pLeptonConstructor; //electrons
-	pLeptonConstructor.ConstructParticle();
-
-	//G4MesonConstructor pMesonConstructor; 
-	//pMesonConstructor.ConstructParticle();
-
-	G4BaryonConstructor pBaryonConstructor;
-	pBaryonConstructor.ConstructParticle();
-
-	G4IonConstructor pIonConstructor;
-	pIonConstructor.ConstructParticle(); 
-}
-
-void pbPhysicsList::ConstructProcess()
-{
-	AddTransportation();
-	ConstructEM();
-	ConstructDecay();
-}
-
-/////////////////////////CONSTRUCTION OF E&M PHYSICS//////////////////////
-
-void pbPhysicsList::ConstructEM() //Taken directly from Example
-{
-	theParticleIterator->reset();
-	while( (*theParticleIterator)() ){
-    G4ParticleDefinition* particle = theParticleIterator->value();
-    G4ProcessManager* pmanager = particle->GetProcessManager();
-    G4String particleName = particle->GetParticleName();
-    
-    if (particleName == "gamma") {
-      // gamma         
-      pmanager->AddDiscreteProcess(new G4PhotoElectricEffect);
-      pmanager->AddDiscreteProcess(new G4ComptonScattering);
-      pmanager->AddDiscreteProcess(new G4GammaConversion);
-      
-    } else if (particleName == "e-") {
-      //electron
-      pmanager->AddProcess(new G4eMultipleScattering,-1, 1, 1);
-      pmanager->AddProcess(new G4eIonisation,        -1, 2, 2);
-      pmanager->AddProcess(new G4eBremsstrahlung,    -1, 3, 3);      
-
-    } else if (particleName == "e+") {
-      //positron
-      pmanager->AddProcess(new G4eMultipleScattering,-1, 1, 1);
-      pmanager->AddProcess(new G4eIonisation,        -1, 2, 2);
-      pmanager->AddProcess(new G4eBremsstrahlung,    -1, 3, 3);
-      pmanager->AddProcess(new G4eplusAnnihilation,   0,-1, 4);
-    
-    } else if( particleName == "mu+" || 
-               particleName == "mu-"    ) {
-      //muon  
-      pmanager->AddProcess(new G4MuMultipleScattering,-1, 1, 1);
-      pmanager->AddProcess(new G4MuIonisation,       -1, 2, 2);
-      pmanager->AddProcess(new G4MuBremsstrahlung,   -1, 3, 3);
-      pmanager->AddProcess(new G4MuPairProduction,   -1, 4, 4);
-             
-    } else if( particleName == "proton" ||
-               particleName == "pi-" ||
-               particleName == "pi+"    ) {
-      //proton  
-      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
-      pmanager->AddProcess(new G4hBremsstrahlung,     -1, 3, 3);
-      pmanager->AddProcess(new G4hPairProduction,     -1, 4, 4);       
-     
-    } else if( particleName == "alpha" || 
-	       particleName == "He3" )     {
-      //alpha 
-      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4ionIonisation,       -1, 2, 2);
-     
-    } else if( particleName == "GenericIon" ) { 
-      //Ions 
-      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4ionIonisation,       -1, 2, 2);     
-      
-      } else if ((!particle->IsShortLived()) &&
-	       (particle->GetPDGCharge() != 0.0) && 
-	       (particle->GetParticleName() != "chargedgeantino")) {
-      //all others charged particles except geantino
-      pmanager->AddProcess(new G4hMultipleScattering,-1, 1, 1);
-      pmanager->AddProcess(new G4hIonisation,        -1, 2, 2);        
-    }     
-  }
-}
-
-///////////////////////////Decay Process Construction///////////////////////
-void pbPhysicsList::ConstructDecay() //taken directly from example
-{
-  // Add Decay Process
-  G4Decay* theDecayProcess = new G4Decay();
-  theParticleIterator->reset();
-  while( (*theParticleIterator)() ){
-    G4ParticleDefinition* particle = theParticleIterator->value();
-    G4ProcessManager* pmanager = particle->GetProcessManager();
-    if (theDecayProcess->IsApplicable(*particle)) { 
-      pmanager ->AddProcess(theDecayProcess);
-      // set ordering for PostStepDoIt and AtRestDoIt
-      pmanager ->SetProcessOrdering(theDecayProcess, idxPostStep);
-      pmanager ->SetProcessOrdering(theDecayProcess, idxAtRest);
+  delete pMessenger;
+  delete raddecayList;
+  delete emPhysicsList;
+  if (hadPhysicsList) delete hadPhysicsList;
+  if (nhadcomp > 0) {
+    for(G4int i=0; i<nhadcomp; i++) {
+      delete hadronPhys[i];
     }
   }
 }
 
-////////////////////////////CUTS///////////////////////////////////
-void pbPhysicsList::SetCuts()//Taken directly from example
-{
-  if (verboseLevel >0){
-    G4cout << "PhysicsList::SetCuts:";
-    G4cout << "CutLength : " << G4BestUnit(defaultCutValue,"Length") << G4endl;
-  }
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-  // set cut values for gamma at first and for e- second and next for e+,
-  // because some processes for e+/e- need cut values for gamma
-  //
-  SetCutValue(defaultCutValue, "gamma");
-  SetCutValue(defaultCutValue, "e-");
-  SetCutValue(defaultCutValue, "e+");
-  SetCutValue(defaultCutValue, "proton");
+void pbPhysicsList::ConstructParticle()
+{
+  particleList->ConstructParticle();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void pbPhysicsList::ConstructProcess()
+{
+  AddTransportation();
+  // em
+  emPhysicsList->ConstructProcess();
+  // decays
+  particleList->ConstructProcess();
+  raddecayList->ConstructProcess();
+  // had
+  if (nhadcomp > 0) {
+    for(G4int i=0; i<nhadcomp; i++) {
+      (hadronPhys[i])->ConstructProcess();
+    }
+  }
+  if (hadPhysicsList) hadPhysicsList->ConstructProcess();
+  G4cout << "### pbPhysicsList::ConstructProcess is done" << G4endl;
+
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void pbPhysicsList::SelectPhysicsList(const G4String& name)
+{
+  if (verboseLevel>1) {
+    G4cout << "pbPhysicsList::SelectPhysicsList: <" << name << ">" << G4endl;
+  }
+  // default  Had physics
+  if (name == "Hadron" && !hadPhysicsList) {
+    hadPhysicsList = new pbPhysListHadron("hadron");
+  } else if (name == "QGSP_BERT") {
+    AddExtraBuilders(false);
+    hadPhysicsList = new HadronPhysicsQGSP_BERT("std-hadron");
+  } else if (name == "QGSP_BIC" && !hadPhysicsList) {
+    AddExtraBuilders(false);
+    hadPhysicsList = new HadronPhysicsQGSP_BIC("std-hadron");
+  } else if (name == "QGSP_BERT_HP"  && !hadPhysicsList) {
+    AddExtraBuilders(true);
+    hadPhysicsList = new HadronPhysicsQGSP_BERT_HP("std-hadron");
+  } else if (name == "QGSP_BIC_HP"  && !hadPhysicsList) {
+    AddExtraBuilders(true);
+    hadPhysicsList = new HadronPhysicsQGSP_BIC_HP("std-hadron");
+  } else if (name == "LowEnergy_EM") {
+      delete emPhysicsList;
+      emPhysicsList = new pbPhysListEmLowEnergy("lowe-em");
+  } else if (name == "Standard_EM") {
+      delete emPhysicsList;
+      emPhysicsList = new G4EmStandardPhysics();
+  } else {
+      G4cout << "pbPhysicsList WARNING wrong or unkonwn <" 
+	     << name << "> Physics " << G4endl;
+  }
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void pbPhysicsList::AddExtraBuilders(G4bool flagHP)
+{
+  nhadcomp = 5;
+  hadronPhys.push_back( new G4EmExtraPhysics("extra EM"));
+  hadronPhys.push_back( new G4HadronElasticPhysics("elastic",verboseLevel,
+						   flagHP));
+  hadronPhys.push_back( new G4QStoppingPhysics("stopping",verboseLevel));
+  hadronPhys.push_back( new G4IonBinaryCascadePhysics("ionBIC"));
+  hadronPhys.push_back( new G4NeutronTrackingCut("Neutron tracking cut"));
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void pbPhysicsList::SetCuts()
+{
+  SetCutValue(cutForGamma, "gamma");
+  SetCutValue(cutForElectron, "e-");
+  SetCutValue(cutForPositron, "e+");
+  G4cout << "world cuts are set" << G4endl;
+
+  if( !TargetCuts ) SetTargetCut(cutForElectron);
+  G4Region* region = (G4RegionStore::GetInstance())->GetRegion("Target");
+  region->SetProductionCuts(TargetCuts);
+  G4cout << "Target cuts are set" << G4endl;
+
+  if( !DetectorCuts ) SetDetectorCut(cutForElectron);
+  region = (G4RegionStore::GetInstance())->GetRegion("Detector");
+  region->SetProductionCuts(DetectorCuts);
+  G4cout << "Detector cuts are set" << G4endl;
 
   if (verboseLevel>0) DumpCutValuesTable();
 }
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+void pbPhysicsList::SetCutForGamma(G4double cut)
+{
+  cutForGamma = cut;
+  SetParticleCuts(cutForGamma, G4Gamma::Gamma());
+}
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+void pbPhysicsList::SetCutForElectron(G4double cut)
+{
+  cutForElectron = cut;
+  SetParticleCuts(cutForElectron, G4Electron::Electron());
+}
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+void pbPhysicsList::SetCutForPositron(G4double cut)
+{
+  cutForPositron = cut;
+  SetParticleCuts(cutForPositron, G4Positron::Positron());
+}
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+void pbPhysicsList::SetTargetCut(G4double cut)
+{
+  if( !TargetCuts ) TargetCuts = new G4ProductionCuts();
 
+  TargetCuts->SetProductionCut(cut, idxG4GammaCut);
+  TargetCuts->SetProductionCut(cut, idxG4ElectronCut);
+  TargetCuts->SetProductionCut(cut, idxG4PositronCut);
 
+}
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+void pbPhysicsList::SetDetectorCut(G4double cut)
+{
+  if( !DetectorCuts ) DetectorCuts = new G4ProductionCuts();
 
+  DetectorCuts->SetProductionCut(cut, idxG4GammaCut);
+  DetectorCuts->SetProductionCut(cut, idxG4ElectronCut);
+  DetectorCuts->SetProductionCut(cut, idxG4PositronCut);
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
