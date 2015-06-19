@@ -36,7 +36,7 @@ pbAnalysisManager::pbAnalysisManager() // from example, what does this actually 
   bookHisto();
 }
 
-pbAnalysisManager::~pbAnalysisManager();
+pbAnalysisManager::~pbAnalysisManager()
 {
 #define HISTDELETE
 #ifdef HISTDELETE
@@ -50,7 +50,7 @@ void pbAnalysisManager::bookHisto()
 	histEMin = 0.0*MeV;
 	histNBin = 100;
 	
-	pbHisto->add1D("BS01","Beta Decay Spectrum in MeV",histNBin,histEMin,histEMax,MeV);
+	histo->add1D("BS01","Beta Decay Spectrum in MeV",histNBin,histEMin,histEMax,MeV);
 }
 
 void pbAnalysisManager::BeginOfRun()
@@ -104,7 +104,7 @@ void pbAnalysisManager::EndOfRun(G4int nevent)
   }
 }
 
-void pbAnalysisManager::BeginOfEvent();
+void pbAnalysisManager::BeginOfEvent()
 {
 	Edepo.clear();
 }

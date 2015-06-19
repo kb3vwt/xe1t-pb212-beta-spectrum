@@ -21,7 +21,7 @@ pbEventActionMessenger::pbEventActionMessenger(pbEventAction* EvAct)
   DrawCmd->AvailableForStates(G4State_Idle);
 }
 
-exrdmEventActionMessenger::~pbEventActionMessenger()
+pbEventActionMessenger::~pbEventActionMessenger()
 {
   delete DrawCmd;
 }

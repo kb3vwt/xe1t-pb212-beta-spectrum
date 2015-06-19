@@ -3,11 +3,11 @@
 //Based on rdecay02 example code, provided by Geant4 collaboration
 
 
-#ifndef exrdmAnalysisManager_h
-#define exrdmAnalysisManager_h 1
+#ifndef pbAnalysisManager_h
+#define pbAnalysisManager_h 1
 
 #include "globals.hh"
-#include "exrdmEnergyDeposition.hh"
+#include "pbEnergyDeposition.hh"
 #include <vector>
 
 class pbHisto;
@@ -71,7 +71,7 @@ class pbAnalysisManager
 		G4double pulseWidth;
 		
 		std::vector <pbEnergyDeposition> Edepo;
-		exrdmHisto*  histo;
+		pbHisto*  histo;
 };
 
 
