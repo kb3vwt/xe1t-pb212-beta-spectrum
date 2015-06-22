@@ -40,17 +40,17 @@
 #include "TNtuple.h"
 #endif
 
-#include "pbHisto.hh"
-#include "pbHistoMessenger.hh"
+#include "exrdmHisto.hh"
+#include "exrdmHistoMessenger.hh"
 #include "G4ParticleTable.hh"
 
 #include "G4Tokenizer.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-pbHisto::pbHisto()
+exrdmHisto::exrdmHisto()
 {
   verbose    = 1;
-  histName   = "pb";
+  histName   = "exrdm";
   //  histType   = "aida";
   histType   = "root";
   nHisto     = 0;
@@ -81,12 +81,12 @@ pbHisto::pbHisto()
   tupleList.clear();
   tupleListROOT.clear();
 
-  messenger = new pbHistoMessenger(this);
+  messenger = new exrdmHistoMessenger(this);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-pbHisto::~pbHisto()
+exrdmHisto::~exrdmHisto()
 {
 #ifdef G4ANALYSIS_USE
   histo.clear();
@@ -110,10 +110,10 @@ pbHisto::~pbHisto()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void pbHisto::book()
+void exrdmHisto::book()
 {
 #ifdef G4ANALYSIS_USE
-  G4cout << "### pbHisto books " << nHisto << " histograms " << G4endl; 
+  G4cout << "### exrdmHisto books " << nHisto << " histograms " << G4endl; 
   // Creating the analysis factory
   aida = AIDA_createAnalysisFactory();
   if(!aida) {
@@ -163,7 +163,7 @@ void pbHisto::book()
 #ifdef G4ANALYSIS_USE_ROOT
 //  new TApplication("App", ((int *)0), ((char **)0));
   G4String fileNameROOT = histName + G4String(".root");
-  hfileROOT = new TFile(fileNameROOT.c_str() ,"RECREATE","ROOT file for pb");
+  hfileROOT = new TFile(fileNameROOT.c_str() ,"RECREATE","ROOT file for exRDM");
   G4cout << "Root file: " << fileNameROOT << G4endl;
   // Creating an 1-dimensional histograms in the root directory of the tree
   for(G4int i=0; i<nHisto; i++) {
@@ -189,7 +189,7 @@ void pbHisto::book()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void pbHisto::save()
+void exrdmHisto::save()
 {
 #ifdef G4ANALYSIS_USE
   // Write histogram file
@@ -219,7 +219,7 @@ void pbHisto::save()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void pbHisto::add1D(const G4String& id, const G4String& name, G4int nb, 
+void exrdmHisto::add1D(const G4String& id, const G4String& name, G4int nb, 
                   G4double x1, G4double x2, G4double u)
 {
   if(verbose > 0) {
@@ -247,7 +247,7 @@ void pbHisto::add1D(const G4String& id, const G4String& name, G4int nb,
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void pbHisto::setHisto1D(G4int i, G4int nb, G4double x1, G4double x2, G4double u)
+void exrdmHisto::setHisto1D(G4int i, G4int nb, G4double x1, G4double x2, G4double u)
 {
   if(i>=0 && i<nHisto) {
     if(verbose > 0) {
@@ -260,13 +260,13 @@ void pbHisto::setHisto1D(G4int i, G4int nb, G4double x1, G4double x2, G4double u
     xmax[i] = x2;
     unit[i] = u;
   } else {
-    G4cout << "pbHisto::setpbHisto1D: WARNING! wrong histogram index " << i << G4endl;
+    G4cout << "exrdmHisto::setexrdmHisto1D: WARNING! wrong histogram index " << i << G4endl;
   }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void pbHisto::fillHisto(G4int i, G4double x, G4double w)
+void exrdmHisto::fillHisto(G4int i, G4double x, G4double w)
 {
   if(verbose > 1) {
     G4cout << "fill histogram: #" << i << " at x= " << x 
@@ -277,21 +277,21 @@ void pbHisto::fillHisto(G4int i, G4double x, G4double w)
   if(i>=0 && i<nHisto) {
     histo[i]->fill(x/unit[i], w);
   } else {
-    G4cout << "pbHisto::fill: WARNING! wrong AIDA histogram index " << i << G4endl;
+    G4cout << "exrdmHisto::fill: WARNING! wrong AIDA histogram index " << i << G4endl;
   }
 #endif
 #ifdef G4ANALYSIS_USE_ROOT  
   if(i>=0 && i<nHisto) {
     ROOThisto[i]->Fill(x/unit[i],w);
   } else {
-    G4cout << "pbHisto::fill: WARNING! wrong ROOT histogram index " << i << G4endl;
+    G4cout << "exrdmHisto::fill: WARNING! wrong ROOT histogram index " << i << G4endl;
   }
 #endif
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void pbHisto::scaleHisto(G4int i, G4double x)
+void exrdmHisto::scaleHisto(G4int i, G4double x)
 {
   if(verbose > 0) {
     G4cout << "Scale histogram: #" << i << " by factor " << x << G4endl;   
@@ -299,14 +299,14 @@ void pbHisto::scaleHisto(G4int i, G4double x)
 #ifdef G4ANALYSIS_USE
   if(i>=0 && i<nHisto) {
     histo[i]->scale(x);
-    G4cout << "pbHisto::scale: WARNING! wrong AIDA histogram index " << i << G4endl;
+    G4cout << "exrdmHisto::scale: WARNING! wrong AIDA histogram index " << i << G4endl;
   }
 #endif
 #ifdef G4ANALYSIS_USE_ROOT  
   if(i>=0 && i<nHisto) {
     ROOThisto[i]->Scale(x);
   } else {
-    G4cout << "pbHisto::scale: WARNING! wrong ROOT histogram index " << i << G4endl;
+    G4cout << "exrdmHisto::scale: WARNING! wrong ROOT histogram index " << i << G4endl;
   }
 #endif
 }
@@ -314,9 +314,9 @@ void pbHisto::scaleHisto(G4int i, G4double x)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 #ifdef G4ANALYSIS_USE
-void pbHisto::addTuple(const G4String& w1, const G4String& w2, const G4String& w3 )
+void exrdmHisto::addTuple(const G4String& w1, const G4String& w2, const G4String& w3 )
 #else
-void pbHisto::addTuple(const G4String& w1, const G4String& w2, const G4String& )
+void exrdmHisto::addTuple(const G4String& w1, const G4String& w2, const G4String& )
 #endif
 
 {
@@ -356,7 +356,7 @@ void pbHisto::addTuple(const G4String& w1, const G4String& w2, const G4String& )
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void pbHisto::fillTuple(G4int i, const G4String& parname, G4double x)
+void exrdmHisto::fillTuple(G4int i, const G4String& parname, G4double x)
 {
   if(verbose > 1) 
     G4cout << "fill tuple # " << i 
@@ -368,7 +368,7 @@ void pbHisto::fillTuple(G4int i, const G4String& parname, G4double x)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void pbHisto::fillTuple(G4int i, G4int col, G4double x)
+void exrdmHisto::fillTuple(G4int i, G4int col, G4double x)
 {
   if(verbose > 1) {
     G4cout << "fill tuple # " << i 
@@ -386,7 +386,7 @@ void pbHisto::fillTuple(G4int i, G4int col, G4double x)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void pbHisto::fillTuple(G4int i, const G4String& parname, G4String& x)
+void exrdmHisto::fillTuple(G4int i, const G4String& parname, G4String& x)
 {
   if(verbose > 1) {
     G4cout << "fill tuple # " << i 
@@ -400,7 +400,7 @@ void pbHisto::fillTuple(G4int i, const G4String& parname, G4String& x)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void pbHisto::addRow(G4int i)
+void exrdmHisto::addRow(G4int i)
 {
   if(verbose > 1) G4cout << "Added a raw #" << i << " to tuple" << G4endl; 
 #ifdef G4ANALYSIS_USE
@@ -420,28 +420,28 @@ void pbHisto::addRow(G4int i)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void pbHisto::setFileName(const G4String& nam) 
+void exrdmHisto::setFileName(const G4String& nam) 
 {
   histName = nam;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-const G4String& pbHisto::getFileName() const
+const G4String& exrdmHisto::getFileName() const
 {
   return histName;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void pbHisto::setFileType(const G4String& nam) 
+void exrdmHisto::setFileType(const G4String& nam) 
 {
   histType = nam;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-const G4String& pbHisto::FileType() const
+const G4String& exrdmHisto::FileType() const
 {
   return histType;
 }
