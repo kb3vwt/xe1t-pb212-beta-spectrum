@@ -28,6 +28,7 @@
 //#include "exrdmDetectorSD.hh"
 #include "G4UImanager.hh"
 #include "G4Tubs.hh"
+#include "G4Box.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 //#include "G4SDManager.hh"
@@ -150,7 +151,7 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   // World
   //------------------------------ 
 
- G4Box* solidWorld = new G4Box("World",worldX_ext,worldY_ext,worldZ_ext);
+ solidWorld = new G4Box("World",worldX_ext,worldY_ext,worldZ_ext);
  logicWorld = new G4LogicalVolume(solidWorld, worldMat, "World", 0, 0, 0);
   
   //  Must place the World Physical volume unrotated at (0,0,0).
