@@ -150,7 +150,7 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   // World
   //------------------------------ 
 
- solidWorld = new G4Box("world",worldX_ext,worldY_ext,worldZ_ext);
+ G4Box* solidWorld = new G4Box("World",worldX_ext,worldY_ext,worldZ_ext);
  logicWorld = new G4LogicalVolume(solidWorld, worldMat, "World", 0, 0, 0);
   
   //  Must place the World Physical volume unrotated at (0,0,0).

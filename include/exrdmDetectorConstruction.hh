@@ -102,10 +102,10 @@ class exrdmDetectorConstruction : public G4VUserDetectorConstruction
 	G4VPhysicalVolume* pchamberCapBottom;
 	 //End Chamber Volumes
 	 
-	 /*
+	 
      exrdmDetectorMessenger* detectorMessenger;  // pointer to the Messenger
      exrdmMaterial* materialsManager;         // material manager
-      
+     /*
      G4Material* DefaultMater;          // Default material
      G4Material* TargetMater;           // Target material
      G4Material* DetectorMater;         // Detector material
