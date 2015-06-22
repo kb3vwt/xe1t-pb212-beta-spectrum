@@ -53,7 +53,10 @@ exrdmDetectorConstruction::exrdmDetectorConstruction()
  fWorldLength(0.)
 {
   detectorMessenger = new exrdmDetectorMessenger(this);
+  
+  
   DefineMaterials();
+  /*
   fDetectorThickness = 2.* cm;
   fTargetRadius = 0.5 * cm;
   fDetectorLength = 5.0 * cm;      
@@ -61,6 +64,17 @@ exrdmDetectorConstruction::exrdmDetectorConstruction()
 //--------- Sizes of the principal geometrical components (solids)  ---------
   fWorldLength = std::max(fTargetLength,fDetectorLength);
   fWorldRadius = fTargetRadius + fDetectorThickness;
+  */
+  
+  //Cryostat Volume
+  CS_OD        = 110.0*cm;  //Outer Diameter of Chamber
+  CS_Height    = 120.0*cm;  //Height of the chamber (inner cap to inner cap)
+  CS_Thickness = 1.25*cm;  //Thickness of the sheet metal
+  
+  //World Extents
+  worldX_ext = 1.5*CS_OD; // 150% Diameter of tank
+  worldY_ext = 1.5*CS_OD;
+  worldZ_ext = 1.5*(2.0*CS_Thickness + CS_Height); //150% outer cap-cap tube heights
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -99,8 +113,8 @@ void exrdmDetectorConstruction::DefineMaterials()
 	chamberMat = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL"); //Chamber Material (nominally stainless steel 316 series)
 	
   //Filler Material:
-	Pb212Percent = 0.*perCent;
-	lXePercent   = 100.*perCent - lXePercent;
+	Pb212Percent = 1.06061e-28;
+	lXePercent   = 100.*perCent - Pb212Percent;
 	
 	G4Element* PbSrc  = new G4Element("Lead","Pb",1);
 	G4Isotope* PB212 = new G4Isotope("Pb212",82,212,212.997*g/mole);//a value from http://en.wikipedia.org/wiki/Isotopes_of_lead
@@ -118,6 +132,7 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
 //--------- Definitions of Solids, Logical Volumes, Physical Volumes ---------
   //--------- Sizes of the principal geometrical components (solids)  ---------
   
+  /*
   //Cryostat Volume
   CS_OD        = 110.0*cm;  //Outer Diameter of Chamber
   CS_Height    = 120.0*cm;  //Height of the chamber (inner cap to inner cap)
@@ -127,7 +142,7 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   worldX_ext = 1.5*CS_OD; // 150% Diameter of tank
   worldY_ext = 1.5*CS_OD;
   worldZ_ext = 1.5*(2.0*CS_Thickness + CS_Height); //150% outer cap-cap tube heights
-
+  */
    
   //------------------------------ 
   // World
@@ -151,18 +166,18 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   //------------------------------
   
   //First, create outside walls
-  G4Tubs* schamberWall            = new G4Tubs("Chamber Wall", CS_OD - CS_Thickness, CS_OD, CS_Height / 2.0, 0., twopi);
-  G4LogicalVolume* lchamberWall   = new G4LogicalVolume(schamberWall, chamberMat, "Chamber Wall");
-  G4VPhysicalVolume* pchamberWall = new G4PVPlacement(0, G4ThreeVector(), "Chamber Wall", logicWorld, false, 0, checkOverlaps);
+  schamberWall   = new G4Tubs("Chamber Wall", CS_OD - CS_Thickness, CS_OD, CS_Height / 2.0, 0., twopi);
+  lchamberWall   = new G4LogicalVolume(schamberWall, chamberMat, "Chamber Wall");
+  pchamberWall   = new G4PVPlacement(0, G4ThreeVector(), "Chamber Wall", logicWorld, false, 0, checkOverlaps);
   //Next, cap off ends (Use boolean? Or not? Also: Could use copies, but object is simple enough not to)
   //top 
-  G4Tubs* schamberCapTop            = new G4Tubs("Chamber Lid", 0, CS_OD, CS_Thickness / 2.0, 0., twopi);
-  G4LogicalVolume* lchamberCapTop   = new G4LogicalVolume(schamberCapTop, chamberMat, "Chamber Lid");
-  G4VPhysicalVolume* pchamberCapTop = new G4PVPlacement(0, G4ThreeVector(0, 0, (CS_Height + CS_Thickness) / 2.0), "Chamber Lid", logicWorld, false, 0, checkOverlaps);
+  schamberCapTop   = new G4Tubs("Chamber Lid", 0, CS_OD, CS_Thickness / 2.0, 0., twopi);
+  lchamberCapTop   = new G4LogicalVolume(schamberCapTop, chamberMat, "Chamber Lid");
+  pchamberCapTop   = new G4PVPlacement(0, G4ThreeVector(0, 0, (CS_Height + CS_Thickness) / 2.0), "Chamber Lid", logicWorld, false, 0, checkOverlaps);
   //bottom
-  G4Tubs* schamberCapBottom            = new G4Tubs("Chamber Bottom", 0, CS_OD, CS_Thickness / 2.0, 0., twopi);
-  G4LogicalVolume* lchamberCapBottom   = new G4LogicalVolume(schamberCapBottom, chamberMat, "Chamber Bottom");
-  G4VPhysicalVolume* pchamberCapBottom = new G4PVPlacement(0, G4ThreeVector(0, 0, -(CS_Height + CS_Thickness) / 2.0), "Chamber Bottom", logicWorld, false, 0, checkOverlaps);          // no particular field 
+  schamberCapBottom   = new G4Tubs("Chamber Bottom", 0, CS_OD, CS_Thickness / 2.0, 0., twopi);
+  lchamberCapBottom   = new G4LogicalVolume(schamberCapBottom, chamberMat, "Chamber Bottom");
+  pchamberCapBottom   = new G4PVPlacement(0, G4ThreeVector(0, 0, -(CS_Height + CS_Thickness) / 2.0), "Chamber Bottom", logicWorld, false, 0, checkOverlaps);          // no particular field 
 
   //  G4cout << "Target is a cylinder with rdius of " << targetradius/cm << " cm of " 
   //       << TargetMater->GetName() << G4endl;
