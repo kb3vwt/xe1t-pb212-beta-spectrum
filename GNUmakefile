@@ -3,7 +3,7 @@
 # GNUmakefile for examples module.  Gabriele Cosmo, 06/04/98.
 # --------------------------------------------------------------
 
-name := pb212spectrum
+name := exrdm-moddedbranch
 G4TARGET := $(name)
 G4EXLIB := true
 
