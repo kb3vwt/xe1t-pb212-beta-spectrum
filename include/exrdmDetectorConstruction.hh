@@ -28,6 +28,7 @@
 
 #include "globals.hh"
 #include "G4VUserDetectorConstruction.hh"
+#include "G4NistManager.hh"
 //#include "exrdmMagneticField.hh"
 
 class G4Tubs;
@@ -85,13 +86,38 @@ class exrdmDetectorConstruction : public G4VUserDetectorConstruction
      G4Tubs*             solidDetector;  // pointer to the solid Detector
      G4LogicalVolume*   logicDetector;  // pointer to the logical Detector
      G4VPhysicalVolume* physiDetector;  // pointer to the physical Detector
-     
+	 
+	//Chamber Volumes:
+	 G4Tubs* schamberWall;
+	G4LogicalVolume* lchamberWall;
+	G4VPhysicalVolume* pchamberWall;
+	//top 
+	G4Tubs* schamberCapTop;
+	G4LogicalVolume* lchamberCapTop;
+	G4VPhysicalVolume* pchamberCapTop;
+	//bottom
+	G4Tubs* schamberCapBottom;
+	G4LogicalVolume* lchamberCapBottom;
+	G4VPhysicalVolume* pchamberCapBottom;
+	 //End Chamber Volumes
+	 
+	 /*
      exrdmDetectorMessenger* detectorMessenger;  // pointer to the Messenger
      exrdmMaterial* materialsManager;         // material manager
       
      G4Material* DefaultMater;          // Default material
      G4Material* TargetMater;           // Target material
      G4Material* DetectorMater;         // Detector material
+	 */
+	 G4NistManager* nist;
+	 G4Material* worldMat;
+	 G4Material* chamberMat;
+	 G4Element* PbSrc;
+	 G4Isotope* PB212;
+	 G4Material* FillerLiquidMat;
+	 G4Material* FillerMIX;
+	 G4double Pb212Percent;
+	 G4double lXePercent;
  
      G4double fWorldLength;            // Full length the world volume
      G4double fTargetLength;           // Full length of the target
@@ -99,6 +125,14 @@ class exrdmDetectorConstruction : public G4VUserDetectorConstruction
      G4double fWorldRadius;            // Radius of  the world volume
      G4double fTargetRadius;           // Radius of the target
      G4double fDetectorThickness;      // Thickness of the Detector
+	 
+     G4double CS_OD;
+     G4double CS_Height;
+	 G4double CS_Thickness;
+     G4double worldX_ext;
+     G4double worldY_ext;
+	 G4double worldX_ext;
+     G4double worldZ_ext;
 
      G4Region*   targetRegion;
      G4Region*   detectorRegion;

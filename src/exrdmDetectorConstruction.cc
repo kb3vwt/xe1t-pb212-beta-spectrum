@@ -31,6 +31,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 //#include "G4SDManager.hh"
+#include "G4NistManager.hh"
 #include "G4Region.hh"
 #include "G4RegionStore.hh"
 
@@ -75,20 +76,39 @@ void exrdmDetectorConstruction::DefineMaterials()
 {
 //--------- Material definition ---------
 
+/*
   materialsManager = new exrdmMaterial();
-  // Lead
-  materialsManager->AddMaterial("Lead","Pb",11.3*g/cm3,"");
-  //Germanium detector
+  // liquid xenon
+  materialsManager->AddMaterial("Xenon","Xe",2.96*g/cm3,"liquid",160*kelvin);
+  // S. Steel
   materialsManager->AddMaterial("Germanium","Ge",5.323*g/cm3,""); 
-  //CsI
+  // lXe+Pb
   materialsManager->AddMaterial("CsI","Cs-I",4.51*g/cm3,"");
 
   // G4cout << G4endl << "The materials defined are : " << G4endl << G4endl;
   // G4cout << *(G4Material::GetMaterialTable()) << G4endl;
-    
-  DefaultMater = materialsManager->GetMaterial("Air");
-  TargetMater  = materialsManager->GetMaterial("CsI");
-  DetectorMater = materialsManager->GetMaterial("Germanium");
+
+  worldMat    = materialsManager->GetMaterial("");
+  chamberMat  = materialsManager->GetMaterial("");
+  fillerMIX   = materialsManager->GetMaterial("");
+  */
+  
+  //Obtain the NIST material manager, look for materials named above, assign to material:
+	G4NistManager* nist    = G4NistManager::Instance(); //starts instance of NIST Material DB
+	G4Material* worldMat   = nist->FindOrBuildMaterial("G4_WATER"); //World Material (nominally water)
+	G4Material* chamberMat = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL"); //Chamber Material (nominally stainless steel 316 series)
+	
+  //Filler Material:
+	G4double Pb212Percent = 0.*perCent;
+	G4double lXePercent   = 100.*perCent - lXePercent;
+	
+	G4Element* PbSrc  = new G4Element("Lead","Pb",1);
+	G4Isotope* PB212 = new G4Isotope("Pb212",82,212,212.997*g/mole);//a value from http://en.wikipedia.org/wiki/Isotopes_of_lead
+    PbSrc->AddIsotope(PB212,100*perCent); // In this case we have "pure" Lead-212.
+	G4Material* FillerLiquidMat    = nist->FindOrBuildMaterial("G4_lXe"); //Filler Material (nominally lXe)
+	G4Material* FillerMIX = new G4Material("lXe + Pb-212 Mixture",2.96*g/cm3,2);
+	FillerMIX->AddMaterial(FillerLiquidMat,lXePercent);
+	FillerMIX->AddElement(elPb,Pb212Percent);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -97,16 +117,24 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
 {
 //--------- Definitions of Solids, Logical Volumes, Physical Volumes ---------
   //--------- Sizes of the principal geometrical components (solids)  ---------
+  
+  //Cryostat Volume
+  G4double CS_OD        = 110.0*cm;  //Outer Diameter of Chamber
+  G4double CS_Height    = 120.0*cm;  //Height of the chamber (inner cap to inner cap)
+  G4double CS_Thickness = 1.25*cm;  //Thickness of the sheet metal
+  
+  //World Extents
+  G4double worldX_ext = 1.5*CS_OD; // 150% Diameter of tank
+  G4double worldY_ext = worldX_ext;
+  G4double worldZ_ext = 1.5*(2.0*CS_Thickness + CS_Height); //150% outer cap-cap tube heights
 
-  fWorldLength = std::max(fTargetLength,fDetectorLength);
-  fWorldRadius = fTargetRadius + fDetectorThickness;
    
   //------------------------------ 
   // World
   //------------------------------ 
 
- solidWorld= new G4Tubs("world",0.,fWorldRadius,fWorldLength/2.,0.,twopi);
- logicWorld= new G4LogicalVolume( solidWorld, DefaultMater, "World", 0, 0, 0);
+ solidWorld= new G4Box("world",worldX_ext,worldY_ext,worldZ_ext);
+ logicWorld= new G4LogicalVolume( solidWorld, worldMat, "World", 0, 0, 0);
   
   //  Must place the World Physical volume unrotated at (0,0,0).
   // 
@@ -119,32 +147,34 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
                                  0);              // no field specific to volume
 				 
   //------------------------------ 
-  // Target
+  // Chamber Walls, Caps
   //------------------------------
   
-  G4ThreeVector positionTarget = G4ThreeVector(0,0,0);
-   
-  solidTarget = new G4Tubs("target",0.,fTargetRadius,fTargetLength/2.,0.,twopi);
-  logicTarget = new G4LogicalVolume(solidTarget,TargetMater,"Target",0,0,0);
-  physiTarget = new G4PVPlacement(0,               // no rotation
-				  positionTarget,  // at (x,y,z)
-				  logicTarget,     // its logical volume				  
-				  "Target",        // its name
-				  logicWorld,      // its mother  volume
-				  false,           // no boolean operations
-				  0);              // no particular field 
+  //First, create outside walls
+  G4Tubs* schamberWall            = new G4Tubs("Chamber Wall", CS_OD - CS_Thickness, CS_OD, CS_Height / 2.0, 0.*Pi, 2.*Pi);
+  G4LogicalVolume* lchamberWall   = new G4LogicalVolume(schamberWall, chamberMat, "Chamber Wall");
+  G4VPhysicalVolume* pchamberWall = new G4PVPlacement(0, G4ThreeVector(), "Chamber Wall", logicWorld, false, 0, checkOverlaps);
+  //Next, cap off ends (Use boolean? Or not? Also: Could use copies, but object is simple enough not to)
+  //top 
+  G4Tubs* schamberCapTop            = new G4Tubs("Chamber Lid", 0, CS_OD, CS_Thickness / 2.0, 0.*Pi, 2.*Pi);
+  G4LogicalVolume* lchamberCapTop   = new G4LogicalVolume(schamberCapTop, chamberMat, "Chamber Lid");
+  G4VPhysicalVolume* pchamberCapTop = new G4PVPlacement(0, G4ThreeVector(0, 0, (CS_Height + CS_Thickness) / 2.0), "Chamber Lid", logicWorld, false, 0, checkOverlaps);
+  //bottom
+  G4Tubs* schamberCapBottom            = new G4Tubs("Chamber Bottom", 0, CS_OD, CS_Thickness / 2.0, 0.*Pi, 2.*Pi);
+  G4LogicalVolume* lchamberCapBottom   = new G4LogicalVolume(schamberCapBottom, chamberMat, "Chamber Bottom");
+  G4VPhysicalVolume* pchamberCapBottom = new G4PVPlacement(0, G4ThreeVector(0, 0, -(CS_Height + CS_Thickness) / 2.0), "Chamber Bottom", logicWorld, false, 0, checkOverlaps);          // no particular field 
 
   //  G4cout << "Target is a cylinder with rdius of " << targetradius/cm << " cm of " 
   //       << TargetMater->GetName() << G4endl;
 
   //------------------------------ 
-  // Detector
+  // Detector Fill
   //------------------------------
   
   G4ThreeVector positionDetector = G4ThreeVector(0,0,0);
   
-  solidDetector = new G4Tubs("detector",fTargetRadius,fWorldRadius,fDetectorLength/2.,0.,twopi);
-  logicDetector = new G4LogicalVolume(solidDetector ,DetectorMater, "Detector",0,0,0);  
+  solidDetector = new G4Tubs("Fill Volume", 0, CS_OD - CS_Thickness, CS_Thickness, 0., twopi);
+  logicDetector = new G4LogicalVolume(solidDetector ,fillerMIX, "Fill Volume",0,0,0);  
   physiDetector = new G4PVPlacement(0,              // no rotation
 				  positionDetector, // at (x,y,z)
 				  logicDetector,    // its logical volume				  
@@ -192,7 +222,7 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   //      UI->ApplyCommand("/event/verbose 2");
   //      UI->ApplyCommand("/tracking/verbose 1");  
 
-  G4double zpos = -fWorldLength/2.;
+  G4double zpos = -worldX_ext/2.;
   G4String command = "/gps/pos/centre ";
   std::ostringstream os;
   os << zpos ; 
@@ -213,6 +243,7 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
  
 void exrdmDetectorConstruction::setTargetMaterial(G4String materialName)
 {
+/*
   // search the material by its name 
   G4Material* pttoMaterial = G4Material::GetMaterial(materialName);  
   if (pttoMaterial)
@@ -220,13 +251,17 @@ void exrdmDetectorConstruction::setTargetMaterial(G4String materialName)
       if (logicTarget) logicTarget->SetMaterial(pttoMaterial); 
       G4cout << "\n----> The target has been changed to " << fTargetLength/cm << " cm of "
              << materialName << G4endl;
-     }             
+     }  
+*/	 
+	G4cout << "Function not implemented.\n";
+
 }
  
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void exrdmDetectorConstruction::setDetectorMaterial(G4String materialName)
 {
+	/*
   // search the material by its name 
   G4Material* pttoMaterial = G4Material::GetMaterial(materialName);  
   if (pttoMaterial)
@@ -234,6 +269,8 @@ void exrdmDetectorConstruction::setDetectorMaterial(G4String materialName)
       if (logicDetector) logicDetector->SetMaterial(pttoMaterial); 
       G4cout << "\n----> The Deetctor has been changed to" << fDetectorLength/cm << " cm of "
              << materialName << G4endl;
-     }             
+     }    
+*/
+	G4cout << "Function not implemented.\n";
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
