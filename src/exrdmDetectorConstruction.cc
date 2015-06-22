@@ -119,14 +119,14 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   //--------- Sizes of the principal geometrical components (solids)  ---------
   
   //Cryostat Volume
-  G4double CS_OD        = 110.0*cm;  //Outer Diameter of Chamber
-  G4double CS_Height    = 120.0*cm;  //Height of the chamber (inner cap to inner cap)
-  G4double CS_Thickness = 1.25*cm;  //Thickness of the sheet metal
+  CS_OD        = 110.0*cm;  //Outer Diameter of Chamber
+  CS_Height    = 120.0*cm;  //Height of the chamber (inner cap to inner cap)
+  CS_Thickness = 1.25*cm;  //Thickness of the sheet metal
   
   //World Extents
-  G4double worldX_ext = 1.5*CS_OD; // 150% Diameter of tank
-  G4double worldY_ext = 1.5*CS_OD;
-  G4double worldZ_ext = 1.5*(2.0*CS_Thickness + CS_Height); //150% outer cap-cap tube heights
+  worldX_ext = 1.5*CS_OD; // 150% Diameter of tank
+  worldY_ext = 1.5*CS_OD;
+  worldZ_ext = 1.5*(2.0*CS_Thickness + CS_Height); //150% outer cap-cap tube heights
 
    
   //------------------------------ 
@@ -151,16 +151,16 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   //------------------------------
   
   //First, create outside walls
-  G4Tubs* schamberWall            = new G4Tubs("Chamber Wall", CS_OD - CS_Thickness, CS_OD, CS_Height / 2.0, 0.*Pi, 2.*Pi);
+  G4Tubs* schamberWall            = new G4Tubs("Chamber Wall", CS_OD - CS_Thickness, CS_OD, CS_Height / 2.0, 0., twopi);
   G4LogicalVolume* lchamberWall   = new G4LogicalVolume(schamberWall, chamberMat, "Chamber Wall");
   G4VPhysicalVolume* pchamberWall = new G4PVPlacement(0, G4ThreeVector(), "Chamber Wall", logicWorld, false, 0, checkOverlaps);
   //Next, cap off ends (Use boolean? Or not? Also: Could use copies, but object is simple enough not to)
   //top 
-  G4Tubs* schamberCapTop            = new G4Tubs("Chamber Lid", 0, CS_OD, CS_Thickness / 2.0, 0.*Pi, 2.*Pi);
+  G4Tubs* schamberCapTop            = new G4Tubs("Chamber Lid", 0, CS_OD, CS_Thickness / 2.0, 0., twopi);
   G4LogicalVolume* lchamberCapTop   = new G4LogicalVolume(schamberCapTop, chamberMat, "Chamber Lid");
   G4VPhysicalVolume* pchamberCapTop = new G4PVPlacement(0, G4ThreeVector(0, 0, (CS_Height + CS_Thickness) / 2.0), "Chamber Lid", logicWorld, false, 0, checkOverlaps);
   //bottom
-  G4Tubs* schamberCapBottom            = new G4Tubs("Chamber Bottom", 0, CS_OD, CS_Thickness / 2.0, 0.*Pi, 2.*Pi);
+  G4Tubs* schamberCapBottom            = new G4Tubs("Chamber Bottom", 0, CS_OD, CS_Thickness / 2.0, 0., twopi);
   G4LogicalVolume* lchamberCapBottom   = new G4LogicalVolume(schamberCapBottom, chamberMat, "Chamber Bottom");
   G4VPhysicalVolume* pchamberCapBottom = new G4PVPlacement(0, G4ThreeVector(0, 0, -(CS_Height + CS_Thickness) / 2.0), "Chamber Bottom", logicWorld, false, 0, checkOverlaps);          // no particular field 
 
