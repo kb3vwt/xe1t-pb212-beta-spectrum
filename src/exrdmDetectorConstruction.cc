@@ -49,7 +49,7 @@ exrdmDetectorConstruction::exrdmDetectorConstruction()
 :solidWorld(0),  logicWorld(0),  physiWorld(0),
  solidTarget(0), logicTarget(0), physiTarget(0), 
  solidDetector(0),logicDetector(0),physiDetector(0), 
- TargetMater(0), DetectorMater(0),
+ worldMat(0), chamberMat(0), fillerMIX(0),
  fWorldLength(0.)
 {
   detectorMessenger = new exrdmDetectorMessenger(this);
@@ -95,12 +95,12 @@ void exrdmDetectorConstruction::DefineMaterials()
   
   //Obtain the NIST material manager, look for materials named above, assign to material:
 	G4NistManager* nist    = G4NistManager::Instance(); //starts instance of NIST Material DB
-	G4Material* worldMat   = nist->FindOrBuildMaterial("G4_WATER"); //World Material (nominally water)
-	G4Material* chamberMat = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL"); //Chamber Material (nominally stainless steel 316 series)
+	worldMat   = nist->FindOrBuildMaterial("G4_WATER"); //World Material (nominally water)
+	chamberMat = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL"); //Chamber Material (nominally stainless steel 316 series)
 	
   //Filler Material:
-	G4double Pb212Percent = 0.*perCent;
-	G4double lXePercent   = 100.*perCent - lXePercent;
+	Pb212Percent = 0.*perCent;
+	lXePercent   = 100.*perCent - lXePercent;
 	
 	G4Element* PbSrc  = new G4Element("Lead","Pb",1);
 	G4Isotope* PB212 = new G4Isotope("Pb212",82,212,212.997*g/mole);//a value from http://en.wikipedia.org/wiki/Isotopes_of_lead
@@ -108,7 +108,7 @@ void exrdmDetectorConstruction::DefineMaterials()
 	G4Material* FillerLiquidMat    = nist->FindOrBuildMaterial("G4_lXe"); //Filler Material (nominally lXe)
 	G4Material* FillerMIX = new G4Material("lXe + Pb-212 Mixture",2.96*g/cm3,2);
 	FillerMIX->AddMaterial(FillerLiquidMat,lXePercent);
-	FillerMIX->AddElement(elPb,Pb212Percent);
+	FillerMIX->AddElement(PbSrc,Pb212Percent);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -125,7 +125,7 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   
   //World Extents
   G4double worldX_ext = 1.5*CS_OD; // 150% Diameter of tank
-  G4double worldY_ext = worldX_ext;
+  G4double worldY_ext = 1.5*CS_OD;
   G4double worldZ_ext = 1.5*(2.0*CS_Thickness + CS_Height); //150% outer cap-cap tube heights
 
    
@@ -133,8 +133,8 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   // World
   //------------------------------ 
 
- solidWorld= new G4Box("world",worldX_ext,worldY_ext,worldZ_ext);
- logicWorld= new G4LogicalVolume( solidWorld, worldMat, "World", 0, 0, 0);
+ solidWorld = new G4Box("world",worldX_ext,worldY_ext,worldZ_ext);
+ logicWorld = new G4LogicalVolume(solidWorld, worldMat, "World", 0, 0, 0);
   
   //  Must place the World Physical volume unrotated at (0,0,0).
   // 
