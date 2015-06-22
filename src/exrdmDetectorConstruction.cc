@@ -44,13 +44,15 @@
 #include <sstream>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
- 
+/*
 exrdmDetectorConstruction::exrdmDetectorConstruction()
 :solidWorld(0),  logicWorld(0),  physiWorld(0),
  solidTarget(0), logicTarget(0), physiTarget(0), 
  solidDetector(0),logicDetector(0),physiDetector(0), 
  worldMat(0), chamberMat(0),
  fWorldLength(0.)
+ */
+exrdmDetectorConstruction::exrdmDetectorConstruction()
 {
   detectorMessenger = new exrdmDetectorMessenger(this);
   
@@ -173,11 +175,11 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   //top 
   schamberCapTop   = new G4Tubs("Chamber Lid", 0, CS_OD, CS_Thickness / 2.0, 0., twopi);
   lchamberCapTop   = new G4LogicalVolume(schamberCapTop, chamberMat, "Chamber Lid");
-  pchamberCapTop   = new G4PVPlacement(0, G4ThreeVector(0, 0, (CS_Height + CS_Thickness) / 2.0), "Chamber Lid", logicWorld, false, 0, checkOverlaps);
+  pchamberCapTop   = new G4PVPlacement(0, G4ThreeVector(0, 0, (CS_Height + CS_Thickness) / 2.0), "Chamber Lid", logicWorld, false, 0, 0);
   //bottom
   schamberCapBottom   = new G4Tubs("Chamber Bottom", 0, CS_OD, CS_Thickness / 2.0, 0., twopi);
   lchamberCapBottom   = new G4LogicalVolume(schamberCapBottom, chamberMat, "Chamber Bottom");
-  pchamberCapBottom   = new G4PVPlacement(0, G4ThreeVector(0, 0, -(CS_Height + CS_Thickness) / 2.0), "Chamber Bottom", logicWorld, false, 0, checkOverlaps);          // no particular field 
+  pchamberCapBottom   = new G4PVPlacement(0, G4ThreeVector(0, 0, -(CS_Height + CS_Thickness) / 2.0), "Chamber Bottom", logicWorld, false, 0, 0);          // no particular field 
 
   //  G4cout << "Target is a cylinder with rdius of " << targetradius/cm << " cm of " 
   //       << TargetMater->GetName() << G4endl;

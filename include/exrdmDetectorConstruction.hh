@@ -32,6 +32,7 @@
 //#include "exrdmMagneticField.hh"
 
 class G4Tubs;
+class G4Box;
 class G4LogicalVolume;
 class G4VPhysicalVolume;
 class G4Material;
