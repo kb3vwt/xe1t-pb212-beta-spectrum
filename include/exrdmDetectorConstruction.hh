@@ -75,7 +75,7 @@ class exrdmDetectorConstruction : public G4VUserDetectorConstruction
      
   private: 
 
-     G4Tubs*             solidWorld;    // pointer to the solid envelope 
+     G4Box*             solidWorld;    // pointer to the solid envelope 
      G4LogicalVolume*   logicWorld;    // pointer to the logical envelope
      G4VPhysicalVolume* physiWorld;    // pointer to the physical envelope
      
@@ -131,8 +131,7 @@ class exrdmDetectorConstruction : public G4VUserDetectorConstruction
 	 G4double CS_Thickness;
      G4double worldX_ext;
      G4double worldY_ext;
-	 G4double worldX_ext;
-     G4double worldZ_ext;
+	 G4double worldZ_ext;
 
      G4Region*   targetRegion;
      G4Region*   detectorRegion;

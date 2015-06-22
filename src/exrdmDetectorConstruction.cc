@@ -49,7 +49,7 @@ exrdmDetectorConstruction::exrdmDetectorConstruction()
 :solidWorld(0),  logicWorld(0),  physiWorld(0),
  solidTarget(0), logicTarget(0), physiTarget(0), 
  solidDetector(0),logicDetector(0),physiDetector(0), 
- worldMat(0), chamberMat(0), fillerMIX(0),
+ worldMat(0), chamberMat(0),
  fWorldLength(0.)
 {
   detectorMessenger = new exrdmDetectorMessenger(this);
@@ -168,7 +168,7 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   //First, create outside walls
   schamberWall   = new G4Tubs("Chamber Wall", CS_OD - CS_Thickness, CS_OD, CS_Height / 2.0, 0., twopi);
   lchamberWall   = new G4LogicalVolume(schamberWall, chamberMat, "Chamber Wall");
-  pchamberWall   = new G4PVPlacement(0, G4ThreeVector(), "Chamber Wall", logicWorld, false, 0, checkOverlaps);
+  pchamberWall   = new G4PVPlacement(0, G4ThreeVector(), "Chamber Wall", logicWorld, false, 0, 0);
   //Next, cap off ends (Use boolean? Or not? Also: Could use copies, but object is simple enough not to)
   //top 
   schamberCapTop   = new G4Tubs("Chamber Lid", 0, CS_OD, CS_Thickness / 2.0, 0., twopi);
@@ -189,7 +189,7 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   G4ThreeVector positionDetector = G4ThreeVector(0,0,0);
   
   solidDetector = new G4Tubs("Fill Volume", 0, CS_OD - CS_Thickness, CS_Thickness, 0., twopi);
-  logicDetector = new G4LogicalVolume(solidDetector ,fillerMIX, "Fill Volume",0,0,0);  
+  logicDetector = new G4LogicalVolume(solidDetector ,FillerMIX, "Fill Volume",0,0,0);  
   physiDetector = new G4PVPlacement(0,              // no rotation
 				  positionDetector, // at (x,y,z)
 				  logicDetector,    // its logical volume				  
