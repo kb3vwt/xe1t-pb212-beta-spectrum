@@ -12,7 +12,8 @@
 
 pbPrimaryGeneratorAction::pbPrimaryGeneratorAction()
 {
-	//Configurables:
+  /*
+        //Configurables:
 	int particleZ = 82; // Lead
 	int particleA = 212; // Lead - 212
 	int particleCharge = 0; // Lead ion charge in units of e
@@ -30,45 +31,17 @@ pbPrimaryGeneratorAction::pbPrimaryGeneratorAction()
 	//Find ion
 	
 	//Set physics values
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//Using GPS, nuclide table (not included in V9.4 so ignore)
-	//Convert code to use gun or GPS with ion table
-	//
-	/*
-	//End Configurables
-	
-	//Define GPS:
-	pb212ParticleSource = new G4GeneralParticleSource();
-	
-	//Open table of nuclides:
-	G4NuclideTable* NuclideTable = G4NuclideTable:: GetNuclideTable();
-	
-	//Find particle
-	G4ParticleDefinition* decayingParticle = NuclideTable->GetIsotopeByIsoLvl(particleZ,particleA,particleLevel);
-	
-	//Find nuclide values for Pb-212, give to GPS:
-	pb212ParticleSource->SetParticleDefinition(decayingParticle)
-	pb212ParticleSource->SetParticleMomentumDirection(particleMom);
-	pb212ParticleSource->SetParticleEnergy(particleEnergy);
-	
-	pb212ParticleSource->SetParticleDefinition(beta)
-	*/
+ */
+
+  particleSource = new G4GeneralParticleSource();
 }
 
 pbPrimaryGeneratorAction::~pbPrimaryGeneratorAction()
 {
-	delete pb212ParticleSource;
+	delete particleSource;
 }
 
 void pbPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-	pb212ParticleSource->GeneratePrimaryVertex(anEvent);
+	particleSource->GeneratePrimaryVertex(anEvent);
 }

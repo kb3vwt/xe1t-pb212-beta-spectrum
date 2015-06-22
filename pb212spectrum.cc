@@ -16,10 +16,17 @@ int main()
   G4RunManager* runMan = new G4RunManager;
   
   //Set Required Initialization Classes
+  
   runMan->SetUserInitialization(new chamberConstruction);
+  
   runMan->SetUserInitialization(new pbPhysicsList);
+ 
   runMan->SetUserInitialization(new pbPrimaryGeneratorAction);
   
+  runMan->SetUserInitialization(new pbEventAction);
+
+  runMan->SetUserInitialization(new pbHisto);
+
   //Initialize the Run Manager / G4 Kernel:
   runMan->Initialize();
 
