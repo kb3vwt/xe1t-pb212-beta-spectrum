@@ -77,8 +77,7 @@ class exrdmDetectorConstruction : public G4VUserDetectorConstruction
      
   private:
      void DefineMaterials();
-	 G4MaterialPropertiesTable* lXe_mt;
-	G4Material* lXe;
+	 
      
   private: 
 
@@ -121,10 +120,11 @@ class exrdmDetectorConstruction : public G4VUserDetectorConstruction
 	 G4Material* chamberMat;
 	 G4Element* PbSrc;
 	 G4Isotope* PB212;
-	 G4Material* FillerLiquidMat;
-	 G4Material* FillerMIX;
 	 G4double Pb212Percent;
 	 G4double lXePercent;
+	 G4MaterialPropertiesTable* lXe_mt;
+	G4Material* lXe;
+	G4Material* lXeMix;
  
      G4double fWorldLength;            // Full length the world volume
      G4double fTargetLength;           // Full length of the target
