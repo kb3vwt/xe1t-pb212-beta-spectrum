@@ -150,10 +150,10 @@ void exrdmDetectorConstruction::DefineMaterials()
 
   lXe->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
 	
-	
-	G4Material* lXeMix = new G4Material("lXe + Pb-212 Mixture",2.96*g/cm3,2);
-	lXeMix->AddMaterial(lXe,lXePercent);
-	lXeMix->AddElement(PbSrc,Pb212Percent);
+  lXeMix = lXe;
+  //G4Material* lXeMix = new G4Material("lXe + Pb-212 Mixture",2.96*g/cm3,2);
+	//lXeMix->AddMaterial(lXe,lXePercent);
+	//lXeMix->AddElement(PbSrc,Pb212Percent);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -252,13 +252,15 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   targetRegion->AddRootLogicalVolume(lchamberWall);
   detectorRegion->AddRootLogicalVolume(logicDetector);
 
+
   //--------- Visualization attributes -------------------------------
+  /*
   logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
   G4VisAttributes* TargetVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
   logicTarget ->SetVisAttributes(TargetVisAtt);
   G4VisAttributes* DetectorVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,.0));
   logicDetector->SetVisAttributes(DetectorVisAtt);
-
+  */
 
   //------------ set the incident position ------
 
