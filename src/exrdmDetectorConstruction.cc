@@ -121,9 +121,9 @@ void exrdmDetectorConstruction::DefineMaterials()
 	
 	G4Element* PbSrc  = new G4Element("Lead","Pb",1);
 	G4Isotope* PB212 = new G4Isotope("Pb212",82,212,212.997*g/mole);//a value from http://en.wikipedia.org/wiki/Isotopes_of_lead
-    PbSrc->AddIsotope(PB212,100*perCent); // In this case we have "pure" Lead-212.
-	G4Material* FillerLiquidMat    = nist->FindOrBuildMaterial("G4_lXe"); //Filler Material (nominally lXe)
-	G4Material* FillerMIX = new G4Material("lXe + Pb-212 Mixture",2.96*g/cm3,2);
+        PbSrc->AddIsotope(PB212,100*perCent); // In this case we have "pure" Lead-212.
+	G4Material* lXe    = new G4Material("lXe",54,131.29*g/mole,2.96*g/cm3); //Filler Material (nominally lXe)
+	G4Material* lXe          = new G4Material("lXe + Pb-212 Mixture",2.96*g/cm3,2);
 	FillerMIX->AddMaterial(FillerLiquidMat,lXePercent);
 	FillerMIX->AddElement(PbSrc,Pb212Percent);
 }
@@ -152,7 +152,7 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   //------------------------------ 
 
  solidWorld = new G4Box("World",worldX_ext,worldY_ext,worldZ_ext);
- logicWorld = new G4LogicalVolume(solidWorld, worldMat, "World", 0, 0, 0);
+ logicWorld = new G4LogicalVolume(solidWorld, worldMat, "World");
   
   //  Must place the World Physical volume unrotated at (0,0,0).
   // 
@@ -191,8 +191,9 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   
   G4ThreeVector positionDetector = G4ThreeVector(0,0,0);
   
-  solidDetector = new G4Tubs("Fill Volume", 0, CS_OD - CS_Thickness, CS_Thickness, 0., twopi);
-  logicDetector = new G4LogicalVolume(solidDetector ,FillerMIX, "Fill Volume",0,0,0);  
+  solidDetector = new G4Tubs("Fill Volume", 0, CS_OD - CS_Thickness, (CS_Height - 2.0 * CS_Thickness) / 2.0, 0., twopi);
+  logicDetector = new G4LogicalVolume(solidDetector, FillerMIX, "Detector Fill Volume");  
+  //logicDetector = new G4LogicalVolume(solidDetector,FillerLiquidMat,"Fill Volume");
   physiDetector = new G4PVPlacement(0,              // no rotation
 				  positionDetector, // at (x,y,z)
 				  logicDetector,    // its logical volume				  
@@ -220,7 +221,7 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   // if(detectorRegion) delete detectorRegion;
   targetRegion = new G4Region("Target");
   detectorRegion   = new G4Region("Detector");
-  targetRegion->AddRootLogicalVolume(logicTarget);
+  targetRegion->AddRootLogicalVolume(lchamberWall);
   detectorRegion->AddRootLogicalVolume(logicDetector);
 
   //--------- Visualization attributes -------------------------------
