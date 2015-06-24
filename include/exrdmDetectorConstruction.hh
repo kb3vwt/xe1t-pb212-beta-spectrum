@@ -29,6 +29,10 @@
 #include "globals.hh"
 #include "G4VUserDetectorConstruction.hh"
 #include "G4NistManager.hh"
+#include "G4Material.hh"
+#include "G4VisAttributes.hh"
+#include "G4MaterialTable.hh"
+
 //#include "exrdmMagneticField.hh"
 
 class G4Tubs;
@@ -73,6 +77,8 @@ class exrdmDetectorConstruction : public G4VUserDetectorConstruction
      
   private:
      void DefineMaterials();
+	 G4MaterialPropertiesTable* lXe_mt;
+	G4Material* lXe;
      
   private: 
 

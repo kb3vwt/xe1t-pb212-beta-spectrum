@@ -37,6 +37,8 @@
 #include "G4RegionStore.hh"
 
 #include "exrdmMaterial.hh"
+#include "G4MaterialTable.hh"
+
 
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
@@ -107,7 +109,7 @@ void exrdmDetectorConstruction::DefineMaterials()
 
   worldMat    = materialsManager->GetMaterial("");
   chamberMat  = materialsManager->GetMaterial("");
-  fillerMIX   = materialsManager->GetMaterial("");
+  lXeMix   = materialsManager->GetMaterial("");
   */
   
   //Obtain the NIST material manager, look for materials named above, assign to material:
@@ -121,11 +123,37 @@ void exrdmDetectorConstruction::DefineMaterials()
 	
 	G4Element* PbSrc  = new G4Element("Lead","Pb",1);
 	G4Isotope* PB212 = new G4Isotope("Pb212",82,212,212.997*g/mole);//a value from http://en.wikipedia.org/wiki/Isotopes_of_lead
-        PbSrc->AddIsotope(PB212,100*perCent); // In this case we have "pure" Lead-212.
+    PbSrc->AddIsotope(PB212,100*perCent); // In this case we have "pure" Lead-212.
 	G4Material* lXe    = new G4Material("lXe",54,131.29*g/mole,2.96*g/cm3); //Filler Material (nominally lXe)
-	G4Material* lXe          = new G4Material("lXe + Pb-212 Mixture",2.96*g/cm3,2);
-	FillerMIX->AddMaterial(FillerLiquidMat,lXePercent);
-	FillerMIX->AddElement(PbSrc,Pb212Percent);
+	
+	//***Material properties tables
+
+  const G4int lXe_NUMENTRIES = 3;
+  G4double lXe_Energy[lXe_NUMENTRIES]    = { 7.0*eV , 7.07*eV, 7.14*eV };
+
+  G4double lXe_SCINT[lXe_NUMENTRIES] = { 0.1, 1.0, 0.1 };
+  G4double lXe_RIND[lXe_NUMENTRIES]  = { 1.59 , 1.57, 1.54 };
+  G4double lXe_ABSL[lXe_NUMENTRIES]  = { 35.*cm, 35.*cm, 35.*cm}; 
+  lXe_mt = new G4MaterialPropertiesTable();
+  lXe_mt->AddProperty("FASTCOMPONENT", lXe_Energy, lXe_SCINT, lXe_NUMENTRIES);
+  lXe_mt->AddProperty("SLOWCOMPONENT", lXe_Energy, lXe_SCINT, lXe_NUMENTRIES);
+  lXe_mt->AddProperty("RINDEX",        lXe_Energy, lXe_RIND,  lXe_NUMENTRIES);
+  lXe_mt->AddProperty("ABSLENGTH",     lXe_Energy, lXe_ABSL,  lXe_NUMENTRIES);
+  lXe_mt->AddConstProperty("SCINTILLATIONYIELD",12000./MeV); 
+  lXe_mt->AddConstProperty("RESOLUTIONSCALE",1.0);
+  lXe_mt->AddConstProperty("FASTTIMECONSTANT",20.*ns);
+  lXe_mt->AddConstProperty("SLOWTIMECONSTANT",45.*ns);
+  lXe_mt->AddConstProperty("YIELDRATIO",1.0);
+  lXe->SetMaterialPropertiesTable(lXe_mt);
+
+  // Set the Birks Constant for the lXe scintillator
+
+  lXe->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
+	
+	
+	G4Material* lXeMix = new G4Material("lXe + Pb-212 Mixture",2.96*g/cm3,2);
+	lXeMix->AddMaterial(lXe,lXePercent);
+	lXeMix->AddElement(PbSrc,Pb212Percent);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -192,7 +220,7 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   G4ThreeVector positionDetector = G4ThreeVector(0,0,0);
   
   solidDetector = new G4Tubs("Fill Volume", 0, CS_OD - CS_Thickness, (CS_Height - 2.0 * CS_Thickness) / 2.0, 0., twopi);
-  logicDetector = new G4LogicalVolume(solidDetector, FillerMIX, "Detector Fill Volume");  
+  logicDetector = new G4LogicalVolume(solidDetector, lXeMix, "Detector Fill Volume");  
   //logicDetector = new G4LogicalVolume(solidDetector,FillerLiquidMat,"Fill Volume");
   physiDetector = new G4PVPlacement(0,              // no rotation
 				  positionDetector, // at (x,y,z)
