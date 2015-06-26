@@ -56,11 +56,8 @@
 #include "G4QStoppingPhysics.hh"
 #include "G4IonBinaryCascadePhysics.hh"
 #include "G4RadioactiveDecayPhysics.hh"
-#include "G4RadioactiveDecay.hh"
 #include "G4NeutronTrackingCut.hh"
 #include "G4DecayPhysics.hh"
-#include "G4IonConstructor.hh"
-
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -81,10 +78,12 @@ exrdmPhysicsList::exrdmPhysicsList() : G4VModularPhysicsList()
 
   //default physics
   particleList = new G4DecayPhysics();
+  RegisterPhysics(new G4DecayPhysics); 
+  RegisterPhysics(new G4RadioactiveDecayPhysics);
 
   //default physics
   raddecayList = new G4RadioactiveDecayPhysics();
-  
+
   // EM physics
   emPhysicsList = new G4EmStandardPhysics();
   
@@ -107,8 +106,6 @@ exrdmPhysicsList::~exrdmPhysicsList()
       delete hadronPhys[i];
     }
   }
-  
-  
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -116,29 +113,6 @@ exrdmPhysicsList::~exrdmPhysicsList()
 void exrdmPhysicsList::ConstructParticle()
 {
   particleList->ConstructParticle();
-  raddecayList->ConstructParticle();
-  
-  //Particle Construction
-  // pseudo-particles
-  G4Geantino::GeantinoDefinition();
-  
-  // gamma
-  G4Gamma::GammaDefinition();
-
-  // leptons
-  G4Electron::ElectronDefinition();
-  G4Positron::PositronDefinition();
-
-  G4NeutrinoE::NeutrinoEDefinition();
-  G4AntiNeutrinoE::AntiNeutrinoEDefinition();
-  
-  // baryons
-  G4Proton::ProtonDefinition();
-  G4Neutron::NeutronDefinition();  
-
-  // ions
-  G4IonConstructor iConstructor;
-  iConstructor.ConstructParticle();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -158,22 +132,6 @@ void exrdmPhysicsList::ConstructProcess()
     }
   }
   if (hadPhysicsList) hadPhysicsList->ConstructProcess();
-  
-  
-    // Add Decay Process
-  G4Decay* theDecayProcess = new G4Decay();
-  theParticleIterator->reset();
-  while( (*theParticleIterator)() ){
-    G4ParticleDefinition* particle = theParticleIterator->value();
-    G4ProcessManager* pmanager = particle->GetProcessManager();
-    if (theDecayProcess->IsApplicable(*particle)) { 
-      pmanager ->AddProcess(theDecayProcess);
-      // set ordering for PostStepDoIt and AtRestDoIt
-      pmanager ->SetProcessOrdering(theDecayProcess, idxPostStep);
-      pmanager ->SetProcessOrdering(theDecayProcess, idxAtRest);
-    }
-  }
-	
   G4cout << "### exrdmPhysicsList::ConstructProcess is done" << G4endl;
 
 }
