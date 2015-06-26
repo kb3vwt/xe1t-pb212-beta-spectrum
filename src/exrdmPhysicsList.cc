@@ -105,6 +105,8 @@ exrdmPhysicsList::~exrdmPhysicsList()
       delete hadronPhys[i];
     }
   }
+  
+  
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -112,6 +114,29 @@ exrdmPhysicsList::~exrdmPhysicsList()
 void exrdmPhysicsList::ConstructParticle()
 {
   particleList->ConstructParticle();
+  raddecayList->ConstructParticle();
+  
+  //Particle Construction
+  // pseudo-particles
+  G4Geantino::GeantinoDefinition();
+  
+  // gamma
+  G4Gamma::GammaDefinition();
+
+  // leptons
+  G4Electron::ElectronDefinition();
+  G4Positron::PositronDefinition();
+
+  G4NeutrinoE::NeutrinoEDefinition();
+  G4AntiNeutrinoE::AntiNeutrinoEDefinition();
+  
+  // baryons
+  G4Proton::ProtonDefinition();
+  G4Neutron::NeutronDefinition();  
+
+  // ions
+  G4IonConstructor iConstructor;
+  iConstructor.ConstructParticle();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -132,7 +157,11 @@ void exrdmPhysicsList::ConstructProcess()
   }
   if (hadPhysicsList) hadPhysicsList->ConstructProcess();
   G4cout << "### exrdmPhysicsList::ConstructProcess is done" << G4endl;
-
+  
+  G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
+  radioactiveDecay->SetHLThreshold(-1.*s);
+  G4ProcessManager* pmanager = G4GenericIon::GenericIon()->GetProcessManager();  
+  pmanager->AddProcess(radioactiveDecay, 0, -1, 1);  
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
