@@ -56,6 +56,7 @@
 #include "G4QStoppingPhysics.hh"
 #include "G4IonBinaryCascadePhysics.hh"
 #include "G4RadioactiveDecayPhysics.hh"
+#include "G4RadioactiveDecay.hh"
 #include "G4NeutronTrackingCut.hh"
 #include "G4DecayPhysics.hh"
 
@@ -81,7 +82,7 @@ exrdmPhysicsList::exrdmPhysicsList() : G4VModularPhysicsList()
 
   //default physics
   raddecayList = new G4RadioactiveDecayPhysics();
-
+  
   // EM physics
   emPhysicsList = new G4EmStandardPhysics();
   

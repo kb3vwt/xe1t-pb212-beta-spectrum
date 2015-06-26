@@ -25,6 +25,7 @@
 //
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
+#include "G4RadioactiveDecay.hh"
 
 #include "exrdmDetectorConstruction.hh"
 #include "exrdmPhysicsList.hh"

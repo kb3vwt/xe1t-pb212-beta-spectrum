@@ -119,11 +119,11 @@ void exrdmDetectorConstruction::DefineMaterials()
 	
   //Filler Material:
 	Pb212Percent = 1.06061e-28;
-	lXePercent   = 100.*perCent - Pb212Percent;
+	lXePercent   = 100. - Pb212Percent;
 	
-	G4Element* PbSrc  = new G4Element("Lead","Pb",1);
-	G4Isotope* PB212 = new G4Isotope("Pb212",82,212,212.997*g/mole);//a value from http://en.wikipedia.org/wiki/Isotopes_of_lead
-    PbSrc->AddIsotope(PB212,100*perCent); // In this case we have "pure" Lead-212.
+	G4Element* PbSrc   = new G4Element("Lead","Pb",1);
+	G4Isotope* PB212   = new G4Isotope("Pb212",82,212,212.997*g/mole);//a value from http://en.wikipedia.org/wiki/Isotopes_of_lead
+        PbSrc->AddIsotope(PB212,100*perCent); // In this case we have "pure" Lead-212.
 	G4Material* lXe    = new G4Material("lXe",54,131.29*g/mole,2.96*g/cm3); //Filler Material (nominally lXe)
 	
 	//***Material properties tables
@@ -150,10 +150,10 @@ void exrdmDetectorConstruction::DefineMaterials()
 
   lXe->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
 	
-  lXeMix = lXe;
-  //G4Material* lXeMix = new G4Material("lXe + Pb-212 Mixture",2.96*g/cm3,2);
-	//lXeMix->AddMaterial(lXe,lXePercent);
-	//lXeMix->AddElement(PbSrc,Pb212Percent);
+  lXeMix = new G4Material("lXe+Pb212",2.96*g/cm3,2);
+  lXeMix->AddMaterial(lXe,lXePercent*perCent);
+  lXeMix->AddElement(PbSrc,Pb212Percent*perCent);
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -247,9 +247,11 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   //
   //  if(targetRegion) delete targetRegion;
   // if(detectorRegion) delete detectorRegion;
-  targetRegion = new G4Region("Target");
+  targetRegion     = new G4Region("Target");
   detectorRegion   = new G4Region("Detector");
   targetRegion->AddRootLogicalVolume(lchamberWall);
+  targetRegion->AddRootLogicalVolume(lchamberCapTop);
+  targetRegion->AddRootLogicalVolume(lchamberCapBottom);
   detectorRegion->AddRootLogicalVolume(logicDetector);
 
 
