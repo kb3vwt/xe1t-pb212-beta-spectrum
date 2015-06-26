@@ -158,12 +158,24 @@ void exrdmPhysicsList::ConstructProcess()
     }
   }
   if (hadPhysicsList) hadPhysicsList->ConstructProcess();
-  G4cout << "### exrdmPhysicsList::ConstructProcess is done" << G4endl;
   
-  G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
-  radioactiveDecay->SetHLThreshold(-1.*s);
-  G4ProcessManager* pmanager = G4GenericIon::GenericIon()->GetProcessManager();  
-  pmanager->AddProcess(radioactiveDecay, 0, -1, 1);  
+  
+    // Add Decay Process
+  G4Decay* theDecayProcess = new G4Decay();
+  theParticleIterator->reset();
+  while( (*theParticleIterator)() ){
+    G4ParticleDefinition* particle = theParticleIterator->value();
+    G4ProcessManager* pmanager = particle->GetProcessManager();
+    if (theDecayProcess->IsApplicable(*particle)) { 
+      pmanager ->AddProcess(theDecayProcess);
+      // set ordering for PostStepDoIt and AtRestDoIt
+      pmanager ->SetProcessOrdering(theDecayProcess, idxPostStep);
+      pmanager ->SetProcessOrdering(theDecayProcess, idxAtRest);
+    }
+  }
+	
+  G4cout << "### exrdmPhysicsList::ConstructProcess is done" << G4endl;
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
