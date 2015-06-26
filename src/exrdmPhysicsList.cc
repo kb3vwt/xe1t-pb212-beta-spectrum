@@ -135,7 +135,7 @@ void exrdmPhysicsList::ConstructParticle()
   G4Neutron::NeutronDefinition();  
 
   // ions
-  G4IonConstructor iConstructor;
+  G4IonConstructor* iConstructor = new G4IonConstructor();
   iConstructor.ConstructParticle();
 }
 
