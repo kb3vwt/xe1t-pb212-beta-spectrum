@@ -59,6 +59,8 @@
 #include "G4RadioactiveDecay.hh"
 #include "G4NeutronTrackingCut.hh"
 #include "G4DecayPhysics.hh"
+#include "G4IonConstructor.hh"
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -135,7 +137,7 @@ void exrdmPhysicsList::ConstructParticle()
   G4Neutron::NeutronDefinition();  
 
   // ions
-  G4IonConstructor* iConstructor = new G4IonConstructor();
+  G4IonConstructor iConstructor;
   iConstructor.ConstructParticle();
 }
 
