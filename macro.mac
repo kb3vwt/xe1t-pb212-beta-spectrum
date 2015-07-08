@@ -1,0 +1,32 @@
+#Defining the GPS for Pb-212
+#Geometry
+/gps/pos/type Volume
+/gps/pos/shape Cylinder
+/gps/pos/radius 108.75 cm
+/gps/pos/halfz 60.0 cm
+/gps/pos/centre 0.0 0.0 0.0
+#/gps/pos/confine physiDetector
+
+
+#Particle
+/gps/particle 
+/gps/ang/type iso
+/gps/ene/type Mono
+/gps/ene/mono 0.0 eV
+/gps/source/intensity 5
+
+/exrdm/phys/SelectPhysics Hadron
+
+#Execution
+/run/initialize
+/vis/open OGLIX
+/vis/drawVolume
+
+#G4RDecayModule (grdm)
+/grdm/allVolumes
+/grdm/verbose 3
+#/grdm/applyICM
+#/grdm/applyARM
+
+
+/run/beamOn 500
