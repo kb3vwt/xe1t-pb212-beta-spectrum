@@ -55,10 +55,7 @@
 #include "G4HadronElasticPhysics.hh"
 #include "G4QStoppingPhysics.hh"
 #include "G4IonBinaryCascadePhysics.hh"
-
-//#include "G4RadioactiveDecayPhysics.hh" ***
-#include "G4RadioactiveDecay.hh"
-
+#include "G4RadioactiveDecayPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 #include "G4DecayPhysics.hh"
 
@@ -67,7 +64,8 @@
 exrdmPhysicsList::exrdmPhysicsList() : G4VModularPhysicsList()
 {
   G4LossTableManager::Instance();
-  defaultCutValue = 1.*mm;
+  //defaultCutValue = 1.*mm;
+  defaultCutValue = 1.*nm;
   cutForGamma     = defaultCutValue;
   cutForElectron  = defaultCutValue;
   cutForPositron  = defaultCutValue;
@@ -80,24 +78,11 @@ exrdmPhysicsList::exrdmPhysicsList() : G4VModularPhysicsList()
   SetVerboseLevel(1);
 
   //default physics
-  //particleList = new G4DecayPhysics();
-  RegisterPhysics(new G4DecayPhysics); 
-  RegisterPhysics(new G4RadioactiveDecayPhysics);
+  particleList = new G4DecayPhysics();
 
   //default physics
-  //raddecayList = new G4RadioactiveDecayPhysics();
-  //BEGIN MOD
-  //add new units for radioActive decays
-  // 
-  const G4double minute = 60*second;
-  const G4double hour   = 60*minute;
-  const G4double day    = 24*hour;
-  const G4double year   = 365*day;
-  new G4UnitDefinition("minute", "min", "Time", minute);
-  new G4UnitDefinition("hour",   "h",   "Time", hour);
-  new G4UnitDefinition("day",    "d",   "Time", day);
-  new G4UnitDefinition("year",   "y",   "Time", year);
-  //END MOD
+  raddecayList = new G4RadioactiveDecayPhysics();
+
   // EM physics
   emPhysicsList = new G4EmStandardPhysics();
   
@@ -112,7 +97,7 @@ exrdmPhysicsList::exrdmPhysicsList() : G4VModularPhysicsList()
 exrdmPhysicsList::~exrdmPhysicsList()
 {
   delete pMessenger;
-  //delete raddecayList; ***
+  delete raddecayList;
   delete emPhysicsList;
   if (hadPhysicsList) delete hadPhysicsList;
   if (nhadcomp > 0) {
@@ -137,22 +122,8 @@ void exrdmPhysicsList::ConstructProcess()
   // em
   emPhysicsList->ConstructProcess();
   // decays
-  //particleList->ConstructProcess(); ***
-  //raddecayList->ConstructProcess(); ***
-  //Begin MOD
-  
-  AddTransportation();
-  
-  G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
-  radioactiveDecay->SetHLThreshold(-1.*s);
-  ///radioactiveDecay->SetICM(false);
-  ///radioactiveDecay->SetARM(false);
-      
-  G4ProcessManager* pmanager = G4GenericIon::GenericIon()->GetProcessManager();  
-  pmanager->AddProcess(radioactiveDecay, 0, -1, 1);  
-
-  
-  //End Mod
+  particleList->ConstructProcess();
+  raddecayList->ConstructProcess();
   // had
   if (nhadcomp > 0) {
     for(G4int i=0; i<nhadcomp; i++) {

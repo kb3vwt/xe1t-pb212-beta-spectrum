@@ -64,7 +64,7 @@ exrdmAnalysisManager::exrdmAnalysisManager()
   nEvt2   = -1;
   targetThresE = 10*keV;
   detectorThresE = 10*keV;
-  pulseWidth = 1.*microsecond;
+  pulseWidth = 1.0e-5 * microsecond;
   histo   = new exrdmHisto();
   bookHisto();
 }
@@ -88,9 +88,9 @@ exrdmAnalysisManager::~exrdmAnalysisManager()
 
 void exrdmAnalysisManager::bookHisto()
 {
-  histEMax = 15.0*MeV;
-  histEMin = .0*MeV;
-  histNBin = 100;
+  histEMax = 0.5*MeV;
+  histEMin = 0.0*MeV;
+  histNBin = 1000;
 
   histo->add1D("H10",
     "Energy deposit (MeV) in the traget",histNBin,histEMin,histEMax,MeV);
@@ -105,7 +105,7 @@ void exrdmAnalysisManager::bookHisto()
   histo->add1D("H15",
     "Anti-coincidence spectrum (MeV) in the detector",histNBin,histEMin,histEMax,MeV);
   histo->add1D("H16",
-	       "Decay emission spectrum (MeV)",histNBin,histEMin,histEMax,MeV);
+	       "Decay emission spectrum (keV)",histNBin,histEMin,histEMax,keV);
   // in aida these histos are indiced from 0-6
   //
   histo->addTuple( "T1", "Emitted Particles","double PID, Energy, Time, Weight" );

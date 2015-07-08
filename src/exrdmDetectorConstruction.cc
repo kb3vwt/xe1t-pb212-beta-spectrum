@@ -118,16 +118,17 @@ void exrdmDetectorConstruction::DefineMaterials()
 	chamberMat = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL"); //Chamber Material (nominally stainless steel 316 series)
 	
   //Filler Material:
-	Pb212Percent = 1.06061e-28;
-	lXePercent   = 100. - Pb212Percent;
+	Pb212Percent =  10.0;//Actually 1.06061e-28;
+	lXePercent   = 100.0 - Pb212Percent;
 	
 	G4Element* PbSrc   = new G4Element("Lead","Pb",1);
 	G4Isotope* PB212   = new G4Isotope("Pb212",82,212,212.997*g/mole);//a value from http://en.wikipedia.org/wiki/Isotopes_of_lead
         PbSrc->AddIsotope(PB212,100*perCent); // In this case we have "pure" Lead-212.
-	G4Material* lXe    = new G4Material("lXe",54,131.29*g/mole,2.96*g/cm3); //Filler Material (nominally lXe)
+	//G4Material* lXe    = new G4Material("lXe",54,131.29*g/mole,2.96*g/cm3); //Filler Material (nominally lXe)
+	G4Material* lXe = nist->FindOrBuildMaterial("G4_lXe");
 	
 	//***Material properties tables
-
+	/*
   const G4int lXe_NUMENTRIES = 3;
   G4double lXe_Energy[lXe_NUMENTRIES]    = { 7.0*eV , 7.07*eV, 7.14*eV };
 
@@ -149,7 +150,8 @@ void exrdmDetectorConstruction::DefineMaterials()
   // Set the Birks Constant for the lXe scintillator
 
   lXe->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
-	
+	*/
+
   lXeMix = new G4Material("lXe+Pb212",2.96*g/cm3,2);
   lXeMix->AddMaterial(lXe,lXePercent*perCent);
   lXeMix->AddElement(PbSrc,Pb212Percent*perCent);
@@ -197,18 +199,18 @@ G4VPhysicalVolume* exrdmDetectorConstruction::Construct()
   //------------------------------
   
   //First, create outside walls
-  schamberWall   = new G4Tubs("Chamber Wall", CS_OD - CS_Thickness, CS_OD, CS_Height / 2.0, 0., twopi);
-  lchamberWall   = new G4LogicalVolume(schamberWall, chamberMat, "Chamber Wall");
-  pchamberWall   = new G4PVPlacement(0, G4ThreeVector(), "Chamber Wall", logicWorld, false, 0, 0);
+  schamberWall        = new G4Tubs("Chamber Wall", CS_OD - CS_Thickness, CS_OD, CS_Height / 2.0, 0., twopi);
+  lchamberWall        = new G4LogicalVolume(schamberWall, chamberMat, "Chamber Wall");
+  pchamberWall        = new G4PVPlacement(0, G4ThreeVector(), lchamberWall, "Chamber Wall", logicWorld, false, 0, 0);
   //Next, cap off ends (Use boolean? Or not? Also: Could use copies, but object is simple enough not to)
   //top 
-  schamberCapTop   = new G4Tubs("Chamber Lid", 0, CS_OD, CS_Thickness / 2.0, 0., twopi);
-  lchamberCapTop   = new G4LogicalVolume(schamberCapTop, chamberMat, "Chamber Lid");
-  pchamberCapTop   = new G4PVPlacement(0, G4ThreeVector(0, 0, (CS_Height + CS_Thickness) / 2.0), "Chamber Lid", logicWorld, false, 0, 0);
+  schamberCapTop      = new G4Tubs("Chamber Lid", 0, CS_OD, CS_Thickness / 2.0, 0., twopi);
+  lchamberCapTop      = new G4LogicalVolume(schamberCapTop, chamberMat, "Chamber Lid");
+  pchamberCapTop      = new G4PVPlacement(0, G4ThreeVector(0, 0, (CS_Height + CS_Thickness) / 2.0), lchamberCapTop, "Chamber Lid", logicWorld, false, 0, 0);
   //bottom
   schamberCapBottom   = new G4Tubs("Chamber Bottom", 0, CS_OD, CS_Thickness / 2.0, 0., twopi);
   lchamberCapBottom   = new G4LogicalVolume(schamberCapBottom, chamberMat, "Chamber Bottom");
-  pchamberCapBottom   = new G4PVPlacement(0, G4ThreeVector(0, 0, -(CS_Height + CS_Thickness) / 2.0), "Chamber Bottom", logicWorld, false, 0, 0);          // no particular field 
+  pchamberCapBottom   = new G4PVPlacement(0, G4ThreeVector(0, 0, -(CS_Height + CS_Thickness) / 2.0), lchamberCapBottom,"Chamber Bottom", logicWorld, false, 0, 0);          // no particular field 
 
   //  G4cout << "Target is a cylinder with rdius of " << targetradius/cm << " cm of " 
   //       << TargetMater->GetName() << G4endl;

@@ -50,7 +50,7 @@
 exrdmHisto::exrdmHisto()
 {
   verbose    = 1;
-  histName   = "exrdm";
+  histName   = "xenonbeta";
   //  histType   = "aida";
   histType   = "root";
   nHisto     = 0;
