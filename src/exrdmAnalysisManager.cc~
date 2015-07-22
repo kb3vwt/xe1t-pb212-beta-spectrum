@@ -88,9 +88,9 @@ exrdmAnalysisManager::~exrdmAnalysisManager()
 
 void exrdmAnalysisManager::bookHisto()
 {
-  histEMax = 0.8*MeV;
+  histEMax = 0.5*MeV;
   histEMin = 0.0*MeV;
-  histNBin = 500;
+  histNBin = 1000;
 
   histo->add1D("H10",
     "Energy deposit (MeV) in the traget",histNBin,histEMin,histEMax,MeV);
